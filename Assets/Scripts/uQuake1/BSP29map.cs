@@ -11,6 +11,7 @@ public class BSP29map
     public BSPFaceLump faces;
     public BSPEdgeLump edges;
     public BSPVertexLump verts;
+    public BSPTexInfoLump texinfo;
 
     public BSP29map(string filename)
     {
@@ -21,10 +22,7 @@ public class BSP29map
         ReadFaces();
         ReadEdges();
         ReadVerts();
-
-        //faces.PrintInfo();
-        //edges.PrintInfo();
-        //verts.PrintInfo();
+        ReadTexinfo();
     }
 
     private void ReadVerts()
@@ -55,10 +53,10 @@ public class BSP29map
         }
 
         BSPfile.BaseStream.Seek(header.directory[13].offset, SeekOrigin.Begin);
-        int numLedges = header.directory[13].length / 2;
+        int numLedges = header.directory[13].length / 4;
         for (int i = 0; i < numLedges; i++)
         {
-            edges.ledges.Add(BSPfile.ReadInt16());
+            edges.ledges.Add(BSPfile.ReadInt32());
         }
     }
 
@@ -66,7 +64,7 @@ public class BSP29map
     {
         faces = new BSPFaceLump();
         BSPfile.BaseStream.Seek(header.directory[7].offset, SeekOrigin.Begin);
-        int numFaces = header.directory[7].length / 28;
+        int numFaces = header.directory[7].length / 20;
 
         // I do seeking inside the loop because I only want to rip the data I care about,
         // and the seek skips over things I won't need, like plane information.
@@ -78,4 +76,14 @@ public class BSP29map
         }
     }
 
+    private void ReadTexinfo()
+    {
+        texinfo = new BSPTexInfoLump();
+        BSPfile.BaseStream.Seek(header.directory[6].offset, SeekOrigin.Begin);
+        int numTexinfos = header.directory[6].length / 40;
+        for (int i = 0; i < numTexinfos; i++)
+        {
+            texinfo.texinfo.Add(new BSPTexInfo(new Vector3(BSPfile.ReadSingle(), BSPfile.ReadSingle(), BSPfile.ReadSingle()), BSPfile.ReadSingle(), new Vector3(BSPfile.ReadSingle(), BSPfile.ReadSingle(), BSPfile.ReadSingle()), BSPfile.ReadSingle(), BSPfile.ReadInt32(), BSPfile.ReadInt32()));  
+        }
+    }
 }

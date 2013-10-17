@@ -22,74 +22,54 @@ public class GenerateMap : MonoBehaviour
 
     void GenerateFaceObject(BSPFace face)
     {
-        GameObject faceObject = new GameObject("BSPface "+faceCount.ToString());
+        GameObject faceObject = new GameObject("BSPface " + faceCount.ToString());
+        faceObject.transform.parent = gameObject.transform;
         Mesh faceMesh = new Mesh();
         faceMesh.name = "BSPmesh";
-        List<Vector3> verts = new List<Vector3>();
-        List<int> tris = new List<int>();
-        List<Vector2> uvs = new List<Vector2>();
 
-        List<int> vertIndexes = new List<int>();
-        List<int> ledges = new List<int>();
-
-        Debug.Log("Face " + faceCount.ToString() + " :\r\n");
-        Debug.Log("Should have: " + face.num_ledges.ToString() + " edges/verts");
-        Debug.Log("Ledges:\r\n");
+        // grab our verts
+        Vector3[] verts = new Vector3[face.num_ledges];
+        int edgestep = face.ledge_index;
         for (int i = 0; i < face.num_ledges; i++)
         {
-            ledges.Add(face.ledge_index + i);
-            Debug.Log(ledges[i]);
-        }
-
-        foreach (int ledge in ledges)
-        {
-            int index = (int)map.edges.ledges[ledge];
-
-            if (index < 0)
+            if (map.edges.ledges[face.ledge_index + i] < 0)
             {
-                vertIndexes.Add(map.edges.edges[Mathf.Abs(index)].vert2);
+                verts[i] = map.verts.verts[map.edges.edges[Mathf.Abs(map.edges.ledges[edgestep])].vert1];
             }
             else
             {
-                vertIndexes.Add(map.edges.edges[index].vert1);
+                verts[i] = map.verts.verts[map.edges.edges[map.edges.ledges[edgestep]].vert2];
             }
-        }
-
-        Debug.Log("VertsIndexs:\r\n");
-        foreach (int index in vertIndexes)
-        {
-            verts.Add(map.verts.verts[index]);
-            Debug.Log(index.ToString());
-        }
-        Debug.Log("Verts:\r\n");
-        foreach (Vector3 vert in verts)
-        {
-            Debug.Log(vert.ToString());
+            edgestep++;
         }
 
         // whip up tris
-        for (int i = 1; i < (verts.Count - 1); i++)
+        int[] tris = new int[(face.num_ledges - 2) * 3];
+        int tristep = 1;
+        for (int i = 1; i < verts.Length - 1; i++)
         {
-            tris.Add(0);
-            tris.Add(i);
-            tris.Add(i + 1);
+            tris[tristep - 1] = 0;
+            tris[tristep] = i;
+            tris[tristep + 1] = i + 1;
+            tristep += 3;
         }
 
-        // make some uvs to debug with
-        for (int i = 0; i < verts.Count; i++)
+        // whip up uvs
+        Vector2[] uvs = new Vector2[face.num_ledges];
+        for (int i = 0; i < face.num_ledges; i++)
         {
-            uvs.Add(new Vector2(0.0f,0.0f));
+            uvs[i] = new Vector2(Vector3.Dot(verts[i], map.texinfo.texinfo[face.texinfo_id].vec3s) + map.texinfo.texinfo[face.texinfo_id].offs, -Vector3.Dot(verts[i], map.texinfo.texinfo[face.texinfo_id].vec3t) + map.texinfo.texinfo[face.texinfo_id].offt);
         }
 
-        faceMesh.vertices = verts.ToArray();
-        faceMesh.triangles = tris.ToArray();
-        faceMesh.uv = uvs.ToArray();
+        faceMesh.vertices = verts;
+        faceMesh.triangles = tris;
+        faceMesh.uv = uvs;
         faceMesh.RecalculateNormals();
-        faceMesh.RecalculateBounds();
-        faceMesh.Optimize();
         faceObject.AddComponent<MeshFilter>();
         faceObject.GetComponent<MeshFilter>().mesh = faceMesh;
         faceObject.AddComponent<MeshRenderer>();
         faceObject.renderer.material = replacementTexture;
+        faceObject.AddComponent<MeshCollider>();
+        faceObject.isStatic = true;
     }
 }

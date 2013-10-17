@@ -8,7 +8,7 @@ using System.Text;
 public class BSPEdgeLump
 {
     public List<BSPEdge> edges = new List<BSPEdge>();
-    public List<short> ledges = new List<short>();
+    public List<int> ledges = new List<int>();
 
     public BSPEdgeLump()
     {
