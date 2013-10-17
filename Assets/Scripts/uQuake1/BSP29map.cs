@@ -21,13 +21,10 @@ public class BSP29map
         ReadFaces();
         ReadEdges();
         ReadVerts();
-        verts.Swizzle();
-        foreach (BSPFace face in faces.faces)
-        {
-            Debug.Log(face.ToString());
-        }
 
-        verts.PrintInfo();
+        //faces.PrintInfo();
+        //edges.PrintInfo();
+        //verts.PrintInfo();
     }
 
     private void ReadVerts()
@@ -54,7 +51,7 @@ public class BSP29map
         int numEdges = header.directory[12].length / 4;
         for (int i = 0; i < numEdges; i++)
         {
-            edges.edges.Add(new BSPEdge(BSPfile.ReadInt16(), BSPfile.ReadInt16()));
+            edges.edges.Add(new BSPEdge(BSPfile.ReadUInt16(), BSPfile.ReadUInt16()));
         }
 
         BSPfile.BaseStream.Seek(header.directory[13].offset, SeekOrigin.Begin);

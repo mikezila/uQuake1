@@ -7,6 +7,7 @@ public class GenerateMap : MonoBehaviour
     public Material replacementTexture;
     public string mapName;
     private BSP29map map;
+    private int faceCount = 0;
 
     void Start()
     {
@@ -15,30 +16,55 @@ public class GenerateMap : MonoBehaviour
         foreach (BSPFace face in map.faces.faces)
         {
             GenerateFaceObject(face);
+            faceCount++;
         }
     }
 
     void GenerateFaceObject(BSPFace face)
     {
-        GameObject faceObject = new GameObject("BSPface");
+        GameObject faceObject = new GameObject("BSPface "+faceCount.ToString());
         Mesh faceMesh = new Mesh();
         faceMesh.name = "BSPmesh";
         List<Vector3> verts = new List<Vector3>();
         List<int> tris = new List<int>();
+        List<Vector2> uvs = new List<Vector2>();
 
-        // Find and grab verts
-        int edge_step = face.ledge_index;
+        List<int> vertIndexes = new List<int>();
+        List<int> ledges = new List<int>();
+
+        Debug.Log("Face " + faceCount.ToString() + " :\r\n");
+        Debug.Log("Should have: " + face.num_ledges.ToString() + " edges/verts");
+        Debug.Log("Ledges:\r\n");
         for (int i = 0; i < face.num_ledges; i++)
         {
-            if (map.edges.ledges[edge_step] > 0)
+            ledges.Add(face.ledge_index + i);
+            Debug.Log(ledges[i]);
+        }
+
+        foreach (int ledge in ledges)
+        {
+            int index = (int)map.edges.ledges[ledge];
+
+            if (index < 0)
             {
-                verts.Add(map.verts.verts[map.edges.edges[map.edges.ledges[edge_step]].vert1]);
+                vertIndexes.Add(map.edges.edges[Mathf.Abs(index)].vert2);
             }
             else
             {
-                verts.Add(map.verts.verts[map.edges.edges[Mathf.Abs(map.edges.ledges[edge_step])].vert2]);
+                vertIndexes.Add(map.edges.edges[index].vert1);
             }
-            edge_step++;
+        }
+
+        Debug.Log("VertsIndexs:\r\n");
+        foreach (int index in vertIndexes)
+        {
+            verts.Add(map.verts.verts[index]);
+            Debug.Log(index.ToString());
+        }
+        Debug.Log("Verts:\r\n");
+        foreach (Vector3 vert in verts)
+        {
+            Debug.Log(vert.ToString());
         }
 
         // whip up tris
@@ -49,8 +75,15 @@ public class GenerateMap : MonoBehaviour
             tris.Add(i + 1);
         }
 
+        // make some uvs to debug with
+        for (int i = 0; i < verts.Count; i++)
+        {
+            uvs.Add(new Vector2(0.0f,0.0f));
+        }
+
         faceMesh.vertices = verts.ToArray();
         faceMesh.triangles = tris.ToArray();
+        faceMesh.uv = uvs.ToArray();
         faceMesh.RecalculateNormals();
         faceMesh.RecalculateBounds();
         faceMesh.Optimize();

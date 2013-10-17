@@ -16,6 +16,7 @@ public class BSPEdgeLump
 
     public void PrintInfo()
     {
+        Debug.Log("Edges:\r\n");
         foreach (BSPEdge edge in edges)
         {
             Debug.Log(edge.ToString());

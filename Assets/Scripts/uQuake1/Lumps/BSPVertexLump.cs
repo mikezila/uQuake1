@@ -23,15 +23,10 @@ public class BSPVertexLump
     public void AddVert(Vector3 vert)
     {
         vert.Scale(new Vector3(0.03f, 0.03f, 0.03f));
-        verts.Add(vert);
-    }
-
-    public void Swizzle()
-    {
-        for (int i = 0; i < verts.Count; i++)
-        {
-            verts[i].Scale(new Vector3(0.03f, 0.03f, 0.03f));
-        }
+        float tempx = -vert.x;
+        float tempy = vert.z;
+        float tempz = -vert.y;
+        verts.Add(new Vector3(tempx, tempy, tempz));
     }
 }
 

@@ -9,7 +9,7 @@ using System.Text;
         public int vert1;
         public int vert2;
 
-        public BSPEdge(short vert1, short vert2)
+        public BSPEdge(ushort vert1, ushort vert2)
         {
             this.vert1 = (int)vert1;
             this.vert2 = (int)vert2;
