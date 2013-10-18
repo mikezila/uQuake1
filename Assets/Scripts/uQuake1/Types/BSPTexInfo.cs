@@ -48,8 +48,8 @@ public class BSPTexInfo
 
         vec3t = new Vector3(tempx, tempy, tempz);
 
-        //offs = offs * 0.03f;
-        //offt = offt * 0.03f;
+        offs = offs * 0.03f;
+        offt = offt * 0.03f;
     }
 }
 

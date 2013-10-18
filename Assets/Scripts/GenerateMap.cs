@@ -54,11 +54,14 @@ public class GenerateMap : MonoBehaviour
             tristep += 3;
         }
 
+        float scales = map.miptex.textures[map.texinfo.texinfo[face.texinfo_id].miptex].width * 0.03f;
+        float scalet = map.miptex.textures[map.texinfo.texinfo[face.texinfo_id].miptex].height * 0.03f;
         // whip up uvs
         Vector2[] uvs = new Vector2[face.num_ledges];
         for (int i = 0; i < face.num_ledges; i++)
         {
-            uvs[i] = new Vector2(Vector3.Dot(verts[i], map.texinfo.texinfo[face.texinfo_id].vec3s) + map.texinfo.texinfo[face.texinfo_id].offs, -Vector3.Dot(verts[i], map.texinfo.texinfo[face.texinfo_id].vec3t) + map.texinfo.texinfo[face.texinfo_id].offt);
+            //uvs[i] = new Vector2(Vector3.Dot(verts[i], map.texinfo.texinfo[face.texinfo_id].vec3s) + map.texinfo.texinfo[face.texinfo_id].offs, Vector3.Dot(verts[i], map.texinfo.texinfo[face.texinfo_id].vec3t) + map.texinfo.texinfo[face.texinfo_id].offt);
+            uvs[i] = new Vector2((Vector3.Dot(verts[i], map.texinfo.texinfo[face.texinfo_id].vec3s) + map.texinfo.texinfo[face.texinfo_id].offs) / scales, (Vector3.Dot(verts[i], map.texinfo.texinfo[face.texinfo_id].vec3t) + map.texinfo.texinfo[face.texinfo_id].offt) / scalet);
         }
 
         faceMesh.vertices = verts;
@@ -68,7 +71,7 @@ public class GenerateMap : MonoBehaviour
         faceObject.AddComponent<MeshFilter>();
         faceObject.GetComponent<MeshFilter>().mesh = faceMesh;
         faceObject.AddComponent<MeshRenderer>();
-        faceObject.renderer.material = replacementTexture;
+        faceObject.renderer.material.mainTexture = map.miptex.textures[map.texinfo.texinfo[face.texinfo_id].miptex];
         faceObject.AddComponent<MeshCollider>();
         faceObject.isStatic = true;
     }
