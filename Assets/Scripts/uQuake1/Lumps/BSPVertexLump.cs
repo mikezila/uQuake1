@@ -6,7 +6,8 @@ using UnityEngine;
 
 public class BSPVertexLump
 {
-    public List<Vector3> verts = new List<Vector3>();
+    public Vector3[] verts;
+    private int vert_count = 0;
 
     public BSPVertexLump()
     {
@@ -26,7 +27,8 @@ public class BSPVertexLump
         float tempx = -vert.x;
         float tempy = vert.z;
         float tempz = -vert.y;
-        verts.Add(new Vector3(tempx, tempy, tempz));
+        verts[vert_count]=(new Vector3(tempx, tempy, tempz));
+        vert_count++;
     }
 }
 

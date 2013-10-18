@@ -7,7 +7,7 @@ using System.Text;
 
 public class BSPFaceLump
 {
-    public List<BSPFace> faces = new List<BSPFace>();
+    public BSPFace[] faces;
 
     public BSPFaceLump()
     {

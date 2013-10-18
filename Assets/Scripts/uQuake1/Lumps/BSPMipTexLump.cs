@@ -28,16 +28,10 @@ public class BSPMipTexLump
 
     public void PrintInfo()
     {
-        Debug.Log("TexCount: " + tex_count.ToString() + "/" + loaded_tex.ToString() + " Offsets:\r\n");
-        foreach (int i in tex_offsets)
-        {
-            Debug.Log(i.ToString());
-        }
-
         Debug.Log("Textures:\r\n");
-        foreach (BSPMipTexture tex in texture_headers)
+        for (int i = 0; i < texture_headers.Length; i++)
         {
-            Debug.Log("H/W: " + tex.height.ToString() + "/" + tex.width.ToString() + " Name: " + tex.name);
+            Debug.Log("H/W: " + texture_headers[i].height.ToString() + "/" + texture_headers[i].width.ToString() + " Offset: " + texture_headers[i].offset.ToString() + " Name: " + texture_headers[i].name);
         }
     }
 }

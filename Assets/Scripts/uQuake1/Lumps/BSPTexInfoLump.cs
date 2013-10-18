@@ -7,7 +7,7 @@ using UnityEngine;
 
 public class BSPTexInfoLump
 {
-    public List<BSPTexInfo> texinfo = new List<BSPTexInfo>();
+    public BSPTexInfo[] texinfo;
 
     public BSPTexInfoLump()
     {
