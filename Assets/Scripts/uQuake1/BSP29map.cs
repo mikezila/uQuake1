@@ -15,6 +15,9 @@ public class BSP29map
     public BSPVertexLump vertLump;
     public BSPTexInfoLump texinfoLump;
     public BSPMipTexLump miptexLump;
+    public BSPMarkSurfaces markSurfacesLump;
+    public BSPvis visLump;
+    public BSPLeafLump leafLump;
 
     public BSP29map(string filename)
     {
@@ -28,6 +31,11 @@ public class BSP29map
         ReadVerts();
         ReadTexinfo();
         ReadTextures();
+        //ReadMarkSurfaces();
+        //ReadVisData();
+        //ReadLeafs();
+
+        //leafLump.PrintInfo();
     }
 
     private void ReadVerts()
@@ -113,14 +121,12 @@ public class BSP29map
             miptexLump.texture_headers[i] = new BSPMipTexture(BSPfile.ReadChars(16), (int)BSPfile.ReadUInt32(), (int)BSPfile.ReadUInt32(), (int)BSPfile.ReadUInt32());
         }
 
-        miptexLump.PrintInfo();
-
         // Now use those texture objects and the palette to make our Texture2D
         // objects that can be used directly
         for (int i = 0; i < miptexLump.tex_count; i++)
         {
-            Debug.Log("Height: " + miptexLump.texture_headers[i].width.ToString() + " Height: " + miptexLump.texture_headers[i].height.ToString());
             miptexLump.textures[i] = new Texture2D(miptexLump.texture_headers[i].width, miptexLump.texture_headers[i].height);
+            miptexLump.textures[i].name = miptexLump.texture_headers[i].name;
             Color32[] colors = new Color32[miptexLump.texture_headers[i].PixelCount()];
             BSPfile.BaseStream.Seek(header.directory[2].offset + miptexLump.tex_offsets[i] + miptexLump.texture_headers[i].offset, SeekOrigin.Begin);
             for (int j = 0; j < miptexLump.texture_headers[i].PixelCount(); j++)
@@ -131,6 +137,42 @@ public class BSP29map
             miptexLump.textures[i].SetPixels32(colors);
             miptexLump.textures[i].filterMode = FilterMode.Point;
             miptexLump.textures[i].Apply();
+        }
+    }
+
+    private void ReadMarkSurfaces()
+    {
+        markSurfacesLump = new BSPMarkSurfaces();
+        int numMarkSurfaces = header.directory[11].length / 2;
+        markSurfacesLump.markSurfaces = new int[numMarkSurfaces];
+        BSPfile.BaseStream.Seek(header.directory[11].offset, SeekOrigin.Begin);
+        for (int i = 0; i < numMarkSurfaces; i++)
+        {
+            markSurfacesLump.markSurfaces[i] = BSPfile.ReadUInt16();
+        }
+    }
+
+    private void ReadVisData()
+    {
+        visLump = new BSPvis();
+        visLump.pvs = new int[header.directory[4].length];
+        for (int i = 0; i < header.directory[4].length; i++)
+        {
+            visLump.pvs[i] = (int)BSPfile.ReadUInt16();
+        }
+    }
+
+    private void ReadLeafs()
+    {
+        leafLump = new BSPLeafLump();
+        int leafCount = header.directory[10].length / 28;
+        leafLump.leafs = new BSPLeaf[leafCount];
+        leafLump.leafCount = leafCount;
+        BSPfile.BaseStream.Seek(header.directory[10].offset, SeekOrigin.Begin);
+        for (int i = 0; i < leafCount; i++)
+        {
+            leafLump.leafs[i] = new BSPLeaf(BSPfile.ReadInt32(), BSPfile.ReadInt32(), BSPfile.ReadBytes(12), BSPfile.ReadUInt16(), BSPfile.ReadUInt16());
+            BSPfile.BaseStream.Seek(4, SeekOrigin.Current); // skip ambient sound bytes we don't care about
         }
     }
 }

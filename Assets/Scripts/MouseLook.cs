@@ -32,6 +32,11 @@ public class MouseLook : MonoBehaviour {
 
 	void Update ()
 	{
+        if (Input.GetButton("Fire1"))
+            transform.position += transform.forward * Time.deltaTime * 25;
+        if (Input.GetButton("Fire2"))
+            transform.position -= transform.forward * Time.deltaTime * 25;
+
 		if (axes == RotationAxes.MouseXAndY)
 		{
 			float rotationX = transform.localEulerAngles.y + Input.GetAxis("Mouse X") * sensitivityX;

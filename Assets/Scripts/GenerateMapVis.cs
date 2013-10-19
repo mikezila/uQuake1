@@ -1,40 +1,47 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics;
 
-public class GenerateMap : MonoBehaviour
+public class GenerateMapVis : MonoBehaviour
 {
     public string mapName;
     private BSP29map map;
     private int faceCount = 0;
-    private Stopwatch stopwatch;
+    private GameObject[][] leafRoots;
+    private Bounds[] leafBoxes;
 
     void Start()
     {
-        stopwatch = new Stopwatch();
-        stopwatch.Start();
         map = new BSP29map(mapName);
-        UnityEngine.Debug.Log("Parsed bsp in: " + stopwatch.ElapsedMilliseconds.ToString());
-        stopwatch.Reset();
-        stopwatch.Start();
-        foreach (BSPFace face in map.facesLump.faces)
-        {
-            GenerateFaceObject(face);
-            faceCount++;
-        }
-        UnityEngine.Debug.Log("Created " + faceCount.ToString() + " GameObjects in: " + stopwatch.ElapsedMilliseconds.ToString());
-        stopwatch.Stop();
+        GenerateVisArrays();
+        GenerateVisObjects();
     }
 
-    void BunkObjects(BSPFace face)
+    void GenerateVisObjects()
     {
-        GameObject bunkObject = new GameObject("BunkObject " + faceCount.ToString());
-        bunkObject.isStatic = true;
-        bunkObject.transform.parent = gameObject.transform;
+        for (int i = 0; i < map.leafLump.leafCount; i++)
+        {
+            for (int j = 0; j < map.leafLump.leafs[i].num_lfaces; j++)
+            {
+                leafRoots[i][j] = GenerateFaceObject(map.facesLump.faces[map.markSurfacesLump.markSurfaces[map.leafLump.leafs[i].lface_index + j]]);
+                faceCount++;
+            }
+        }
     }
 
-    void GenerateFaceObject(BSPFace face)
+    void GenerateVisArrays()
+    {
+        leafRoots = new GameObject[map.leafLump.leafCount][];
+        leafBoxes = new Bounds[map.leafLump.leafCount];
+        for (int i = 0; i < map.leafLump.leafCount; i++)
+        {
+            leafRoots[i] = new GameObject[map.leafLump.leafs[i].num_lfaces];
+            leafBoxes[i] = new Bounds();
+            leafBoxes[i].SetMinMax(map.leafLump.leafs[i].mins, map.leafLump.leafs[i].maxs);
+        }
+    }
+
+    GameObject GenerateFaceObject(BSPFace face)
     {
         GameObject faceObject = new GameObject("BSPface " + faceCount.ToString());
         faceObject.transform.parent = gameObject.transform;
@@ -86,12 +93,8 @@ public class GenerateMap : MonoBehaviour
         faceObject.AddComponent<MeshRenderer>();
         faceObject.renderer.material.mainTexture = map.miptexLump.textures[map.texinfoLump.texinfo[face.texinfo_id].miptex];
         faceObject.AddComponent<MeshCollider>();
-        string texName = faceObject.renderer.material.mainTexture.name;
-        if (texName == "trigger" || texName == "skip")
-        {
-            faceObject.collider.enabled = false;
-            faceObject.renderer.enabled = false;
-        }
         faceObject.isStatic = true;
+
+        return faceObject;
     }
 }

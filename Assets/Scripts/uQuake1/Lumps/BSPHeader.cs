@@ -37,6 +37,13 @@ public class BSPHeader
         for (int i = 0; i < 15; i++)
         {
             directory.Add(new HeaderEntry(map.ReadInt32(), map.ReadInt32()));
+        }
+    }
+
+    public void PrintInfo()
+    {
+        for (int i = 0; i < 15; i++)
+        {
             Debug.Log("Lump " + i.ToString() + " " + directory[i].ToString());
         }
     }
