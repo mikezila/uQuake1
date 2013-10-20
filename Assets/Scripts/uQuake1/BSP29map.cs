@@ -18,6 +18,7 @@ public class BSP29map
     public BSPMarkSurfaces markSurfacesLump;
     public BSPvis visLump;
     public BSPLeafLump leafLump;
+    public BSPPlaneLump planeLump;
 
     public BSP29map(string filename)
     {
@@ -31,11 +32,26 @@ public class BSP29map
         ReadVerts();
         ReadTexinfo();
         ReadTextures();
-        //ReadMarkSurfaces();
-        //ReadVisData();
-        //ReadLeafs();
+        ReadMarkSurfaces();
+        ReadVisData();
+        ReadLeafs();
+        ReadPlanes();
 
-        //leafLump.PrintInfo();
+        BSPfile.BaseStream.Dispose();
+
+        leafLump.PrintInfo();
+    }
+
+    private void ReadPlanes()
+    {
+        planeLump = new BSPPlaneLump();
+        BSPfile.BaseStream.Seek(header.directory[1].offset, SeekOrigin.Begin);
+        int planeCount = header.directory[1].length / 20;
+        planeLump.planes = new BSPPlane[planeCount];
+        for (int i = 0; i < planeCount; i++)
+        {
+            planeLump.planes[i] = new BSPPlane(new Vector3(BSPfile.ReadSingle(), BSPfile.ReadSingle(), BSPfile.ReadSingle()), BSPfile.ReadSingle(), BSPfile.ReadInt32());
+        }
     }
 
     private void ReadVerts()
@@ -171,7 +187,7 @@ public class BSP29map
         BSPfile.BaseStream.Seek(header.directory[10].offset, SeekOrigin.Begin);
         for (int i = 0; i < leafCount; i++)
         {
-            leafLump.leafs[i] = new BSPLeaf(BSPfile.ReadInt32(), BSPfile.ReadInt32(), BSPfile.ReadBytes(12), BSPfile.ReadUInt16(), BSPfile.ReadUInt16());
+            leafLump.leafs[i] = new BSPLeaf(BSPfile.ReadInt32(), BSPfile.ReadInt32(), new Vector3((float)BSPfile.ReadInt16(), (float)BSPfile.ReadInt16(), (float)BSPfile.ReadInt16()), new Vector3((float)BSPfile.ReadInt16(), (float)BSPfile.ReadInt16(), (float)BSPfile.ReadInt16()), BSPfile.ReadUInt16(), BSPfile.ReadUInt16());
             BSPfile.BaseStream.Seek(4, SeekOrigin.Current); // skip ambient sound bytes we don't care about
         }
     }

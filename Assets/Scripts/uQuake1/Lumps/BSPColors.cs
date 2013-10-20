@@ -15,6 +15,7 @@ public class BSPColors
     {
         colorLump = new BinaryReader(File.Open("Assets/Resources/id1/palette.lmp", FileMode.Open));
         RipColors();
+        colorLump.BaseStream.Dispose();
         //DebugTex();
     }
 

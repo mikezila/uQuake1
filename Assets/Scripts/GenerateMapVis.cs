@@ -1,6 +1,5 @@
 ﻿using UnityEngine;
 using System.Collections;
-using System.Collections.Generic;
 
 public class GenerateMapVis : MonoBehaviour
 {
@@ -8,13 +7,74 @@ public class GenerateMapVis : MonoBehaviour
     private BSP29map map;
     private int faceCount = 0;
     private GameObject[][] leafRoots;
-    private Bounds[] leafBoxes;
+    public Bounds[] leafBoxes;
+    private bool mapReady = false;
+    public Plane[] planes;
 
     void Start()
     {
         map = new BSP29map(mapName);
         GenerateVisArrays();
         GenerateVisObjects();
+        GenerateLeafBoxes();
+        //GeneratePlanes();
+        mapReady = true;
+    }
+
+    void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.A))
+        {
+            Debug.Log("Bounds:\r\n");
+            foreach (Bounds leaf in leafBoxes)
+            {
+                Debug.Log(leaf.extents.ToString());
+            }
+        }
+
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            int count = 0;
+            foreach (Bounds leaf in leafBoxes)
+            {
+                //Debug.Log(leaf.center.ToString());
+                if (leaf.Intersects(GameObject.FindWithTag("Player").collider.bounds))
+                    count++;
+            }
+            Debug.Log("Touching " + count.ToString() + " of " + leafBoxes.Length + " leafs at " + GameObject.FindWithTag("Player").transform.position.ToString());
+        }
+    }
+
+    void OnDrawGizmosSelected()
+    {
+        if (mapReady)
+        {
+            Gizmos.color = Color.green;
+            for (int i = 0; i < leafBoxes.Length; i++)
+            {
+                Gizmos.DrawWireCube(leafBoxes[i].center, leafBoxes[i].size);
+            }
+        }
+    }
+
+    void GeneratePlanes()
+    {
+        planes = new Plane[map.planeLump.planes.Length];
+        for (int i = 0; i < planes.Length; i++)
+        {
+            planes[i] = new Plane(map.planeLump.planes[i].normal, map.planeLump.planes[i].distance);
+        }
+    }
+
+    void GenerateVisArrays()
+    {
+        leafRoots = new GameObject[map.leafLump.leafCount][];
+        leafBoxes = new Bounds[map.leafLump.leafCount];
+        for (int i = 0; i < map.leafLump.leafCount; i++)
+        {
+            leafRoots[i] = new GameObject[map.leafLump.leafs[i].num_lfaces];
+            leafBoxes[i] = new Bounds();
+        }
     }
 
     void GenerateVisObjects()
@@ -29,17 +89,16 @@ public class GenerateMapVis : MonoBehaviour
         }
     }
 
-    void GenerateVisArrays()
+    void GenerateLeafBoxes()
     {
-        leafRoots = new GameObject[map.leafLump.leafCount][];
-        leafBoxes = new Bounds[map.leafLump.leafCount];
         for (int i = 0; i < map.leafLump.leafCount; i++)
         {
-            leafRoots[i] = new GameObject[map.leafLump.leafs[i].num_lfaces];
-            leafBoxes[i] = new Bounds();
             leafBoxes[i].SetMinMax(map.leafLump.leafs[i].mins, map.leafLump.leafs[i].maxs);
+            Debug.Log(leafBoxes[i].center.ToString() + " " + leafBoxes[i].size.ToString());
         }
     }
+
+    #region Face Object Generation
 
     GameObject GenerateFaceObject(BSPFace face)
     {
@@ -97,4 +156,5 @@ public class GenerateMapVis : MonoBehaviour
 
         return faceObject;
     }
+    #endregion
 }

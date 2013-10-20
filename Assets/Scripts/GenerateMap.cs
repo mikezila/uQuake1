@@ -22,16 +22,10 @@ public class GenerateMap : MonoBehaviour
         {
             GenerateFaceObject(face);
             faceCount++;
+			
         }
         UnityEngine.Debug.Log("Created " + faceCount.ToString() + " GameObjects in: " + stopwatch.ElapsedMilliseconds.ToString());
         stopwatch.Stop();
-    }
-
-    void BunkObjects(BSPFace face)
-    {
-        GameObject bunkObject = new GameObject("BunkObject " + faceCount.ToString());
-        bunkObject.isStatic = true;
-        bunkObject.transform.parent = gameObject.transform;
     }
 
     void GenerateFaceObject(BSPFace face)
