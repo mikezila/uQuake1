@@ -18,7 +18,14 @@ public class GenerateMapVis : MonoBehaviour
         GenerateVisObjects();
         GenerateLeafBoxes();
         //GeneratePlanes();
+        //DebugBox();
         mapReady = true;
+    }
+
+    void DebugBox()
+    {
+        leafBoxes[0] = new Bounds();
+        leafBoxes[0].SetMinMax(new Vector3(-20, -20, -20), Vector3.zero);
     }
 
     void Update()
@@ -28,7 +35,7 @@ public class GenerateMapVis : MonoBehaviour
             Debug.Log("Bounds:\r\n");
             foreach (Bounds leaf in leafBoxes)
             {
-                Debug.Log(leaf.extents.ToString());
+                Debug.Log("Mins: " + leaf.min.ToString() + " Max: " + leaf.max.ToString());
             }
         }
 
@@ -94,7 +101,6 @@ public class GenerateMapVis : MonoBehaviour
         for (int i = 0; i < map.leafLump.leafCount; i++)
         {
             leafBoxes[i].SetMinMax(map.leafLump.leafs[i].mins, map.leafLump.leafs[i].maxs);
-            Debug.Log(leafBoxes[i].center.ToString() + " " + leafBoxes[i].size.ToString());
         }
     }
 

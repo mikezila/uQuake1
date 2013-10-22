@@ -38,8 +38,6 @@ public class BSP29map
         ReadPlanes();
 
         BSPfile.BaseStream.Dispose();
-
-        leafLump.PrintInfo();
     }
 
     private void ReadPlanes()
