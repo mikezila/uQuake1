@@ -9,18 +9,25 @@ public class BSPPlane
     public Vector3 normal;
     public float distance;
     public int type;
+    public Plane plane;
 
     public BSPPlane(Vector3 normal, float distance, int type)
     {
-        normal.Scale(new Vector3(0.03f, 0.03f, 0.03f));
         this.normal = normal;
         this.distance = distance * 0.03f;
         this.type = type;
         Swizzle();
+        this.plane = new Plane(this.normal, this.distance);
+    }
+
+    public override string ToString()
+    {
+        return "Normal: " + plane.normal.ToString() + " D: " + plane.distance.ToString();
     }
 
     private void Swizzle()
     {
+        normal.Scale(new Vector3(0.03f, 0.03f, 0.03f));
         float tempx = -normal.x;
         float tempy = normal.z;
         float tempz = -normal.y;

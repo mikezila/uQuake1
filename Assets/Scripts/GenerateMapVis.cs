@@ -7,80 +7,61 @@ public class GenerateMapVis : MonoBehaviour
     private BSP29map map;
     private int faceCount = 0;
     private GameObject[][] leafRoots;
-    public Bounds[] leafBoxes;
-    private bool mapReady = false;
-    public Plane[] planes;
+    private Transform player;
 
     void Start()
     {
         map = new BSP29map(mapName);
+        player = GameObject.FindGameObjectWithTag("Player").transform;
         GenerateVisArrays();
         GenerateVisObjects();
-        GenerateLeafBoxes();
-        //GeneratePlanes();
-        //DebugBox();
-        mapReady = true;
-    }
-
-    void DebugBox()
-    {
-        leafBoxes[0] = new Bounds();
-        leafBoxes[0].SetMinMax(new Vector3(-20, -20, -20), Vector3.zero);
     }
 
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.A))
+        //if (Input.GetKeyDown(KeyCode.A))
         {
-            Debug.Log("Bounds:\r\n");
-            foreach (Bounds leaf in leafBoxes)
+            int child = BSPlookup(0);
+            while (child > 0)
             {
-                Debug.Log("Mins: " + leaf.min.ToString() + " Max: " + leaf.max.ToString());
+                //Debug.Log("Looking up child " + child.ToString());
+                child = BSPlookup(child);
             }
-        }
 
-        if (Input.GetKeyDown(KeyCode.Space))
-        {
-            int count = 0;
-            foreach (Bounds leaf in leafBoxes)
-            {
-                //Debug.Log(leaf.center.ToString());
-                if (leaf.Intersects(GameObject.FindWithTag("Player").collider.bounds))
-                    count++;
-            }
-            Debug.Log("Touching " + count.ToString() + " of " + leafBoxes.Length + " leafs at " + GameObject.FindWithTag("Player").transform.position.ToString());
+            child = Mathf.Abs(child) - 1;
+            Debug.Log("In Leaf: " + child.ToString());
+            UpdatePVS(child);
         }
     }
 
-    void OnDrawGizmosSelected()
+    private void UpdatePVS(int leaf)
     {
-        if (mapReady)
+        foreach (GameObject go in leafRoots[leaf])
         {
-            Gizmos.color = Color.green;
-            for (int i = 0; i < leafBoxes.Length; i++)
-            {
-                Gizmos.DrawWireCube(leafBoxes[i].center, leafBoxes[i].size);
-            }
+            go.renderer.enabled = true;
         }
     }
 
-    void GeneratePlanes()
+    private int BSPlookup(int node)
     {
-        planes = new Plane[map.planeLump.planes.Length];
-        for (int i = 0; i < planes.Length; i++)
+        int child;
+        if (!map.planeLump.planes[map.nodeLump.nodes[node].planeNum].plane.GetSide(player.position))
         {
-            planes[i] = new Plane(map.planeLump.planes[i].normal, map.planeLump.planes[i].distance);
+            child = map.nodeLump.nodes[node].children[0];
         }
+        else
+        {
+            child = map.nodeLump.nodes[node].children[1];
+        }
+        return child;
     }
 
     void GenerateVisArrays()
     {
         leafRoots = new GameObject[map.leafLump.leafCount][];
-        leafBoxes = new Bounds[map.leafLump.leafCount];
         for (int i = 0; i < map.leafLump.leafCount; i++)
         {
             leafRoots[i] = new GameObject[map.leafLump.leafs[i].num_lfaces];
-            leafBoxes[i] = new Bounds();
         }
     }
 
@@ -93,14 +74,6 @@ public class GenerateMapVis : MonoBehaviour
                 leafRoots[i][j] = GenerateFaceObject(map.facesLump.faces[map.markSurfacesLump.markSurfaces[map.leafLump.leafs[i].lface_index + j]]);
                 faceCount++;
             }
-        }
-    }
-
-    void GenerateLeafBoxes()
-    {
-        for (int i = 0; i < map.leafLump.leafCount; i++)
-        {
-            leafBoxes[i].SetMinMax(map.leafLump.leafs[i].mins, map.leafLump.leafs[i].maxs);
         }
     }
 
@@ -159,6 +132,7 @@ public class GenerateMapVis : MonoBehaviour
         faceObject.renderer.material.mainTexture = map.miptexLump.textures[map.texinfoLump.texinfo[face.texinfo_id].miptex];
         faceObject.AddComponent<MeshCollider>();
         faceObject.isStatic = true;
+        faceObject.renderer.enabled = false;
 
         return faceObject;
     }

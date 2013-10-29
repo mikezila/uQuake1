@@ -19,7 +19,8 @@ public class BSP29map
     public BSPvis visLump;
     public BSPLeafLump leafLump;
     public BSPPlaneLump planeLump;
-
+	public BSPNodeLump nodeLump;
+	
     public BSP29map(string filename)
     {
         BSPfile = new BinaryReader(File.Open("Assets/Resources/Maps/" + filename, FileMode.Open));
@@ -36,15 +37,29 @@ public class BSP29map
         ReadVisData();
         ReadLeafs();
         ReadPlanes();
+		ReadNodes();
 
         BSPfile.BaseStream.Dispose();
+    }
+
+    private void ReadNodes()
+    {
+        nodeLump = new BSPNodeLump();
+        BSPfile.BaseStream.Seek(header.directory[5].offset, SeekOrigin.Begin);
+        int nodeCount = header.directory[5].length / 24;
+        nodeLump.nodes = new BSPNode[nodeCount];
+        for (int i = 0; i < nodeCount; i++)
+        {
+            nodeLump.nodes[i] = new BSPNode(BSPfile.ReadInt32(), BSPfile.ReadInt16(), BSPfile.ReadInt16());
+            BSPfile.BaseStream.Seek(16, SeekOrigin.Current);
+        }
     }
 
     private void ReadPlanes()
     {
         planeLump = new BSPPlaneLump();
         BSPfile.BaseStream.Seek(header.directory[1].offset, SeekOrigin.Begin);
-        int planeCount = header.directory[1].length / 20;
+        int planeCount = header.directory[1].length / 24;
         planeLump.planes = new BSPPlane[planeCount];
         for (int i = 0; i < planeCount; i++)
         {
