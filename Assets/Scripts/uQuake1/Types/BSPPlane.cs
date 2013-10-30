@@ -13,7 +13,7 @@ public class BSPPlane
 
     public BSPPlane(Vector3 normal, float distance, int type)
     {
-        this.normal = normal;
+        this.normal = -normal; // Invert the normal because of reasons.  Really I'm not sure why, Unity/Quake's vector3 systems don't get along.
         this.distance = distance * 0.03f;
         this.type = type;
         Swizzle();
@@ -27,11 +27,11 @@ public class BSPPlane
 
     private void Swizzle()
     {
-        normal.Scale(new Vector3(0.03f, 0.03f, 0.03f));
         float tempx = -normal.x;
         float tempy = normal.z;
         float tempz = -normal.y;
         normal = new Vector3(tempx, tempy, tempz);
+        normal.Scale(new Vector3(0.03f, 0.03f, 0.03f));
     }
 }
 

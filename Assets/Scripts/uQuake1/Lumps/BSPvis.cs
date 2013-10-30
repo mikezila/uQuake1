@@ -18,7 +18,7 @@ public class BSPvis
         string blob = "";
         foreach (int i in pvs)
         {
-            blob += i.ToString();
+            blob += i.ToString() + " ";
         }
         Debug.Log(blob);
     }

@@ -59,7 +59,7 @@ public class BSP29map
     {
         planeLump = new BSPPlaneLump();
         BSPfile.BaseStream.Seek(header.directory[1].offset, SeekOrigin.Begin);
-        int planeCount = header.directory[1].length / 24;
+        int planeCount = header.directory[1].length / 20;
         planeLump.planes = new BSPPlane[planeCount];
         for (int i = 0; i < planeCount; i++)
         {

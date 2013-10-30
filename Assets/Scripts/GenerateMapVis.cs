@@ -8,6 +8,7 @@ public class GenerateMapVis : MonoBehaviour
     private int faceCount = 0;
     private GameObject[][] leafRoots;
     private Transform player;
+    private bool[] CVS;
 
     void Start()
     {
@@ -22,13 +23,13 @@ public class GenerateMapVis : MonoBehaviour
         //if (Input.GetKeyDown(KeyCode.A))
         {
             int child = BSPlookup(0);
-            while (child > 0)
+            while (child >= 0)
             {
                 //Debug.Log("Looking up child " + child.ToString());
                 child = BSPlookup(child);
             }
 
-            child = Mathf.Abs(child) - 1;
+            child = -(child + 1);
             Debug.Log("In Leaf: " + child.ToString());
             UpdatePVS(child);
         }
@@ -36,9 +37,38 @@ public class GenerateMapVis : MonoBehaviour
 
     private void UpdatePVS(int leaf)
     {
+        for (int i = 0; i < leafRoots.Length; i++)
+        {
+            foreach (GameObject go in leafRoots[i])
+            {
+                go.renderer.material.color = Color.blue;
+            }
+        }
+
         foreach (GameObject go in leafRoots[leaf])
         {
-            go.renderer.enabled = true;
+            go.renderer.material.color = Color.green;
+        }
+    }
+
+    private void GetCVS(int index)
+    {
+        for (int i = 0; i < CVS.Length; i++)
+        {
+            CVS[i] = false;
+        }
+
+        for (int i = 0; i < map.leafLump.leafCount; i++)
+        {
+            if (map.visLump.pvs[index + i] == 0)
+            {
+                CVS[i] = true;
+            }
+            else
+            {
+                i += map.visLump.pvs[index + i];
+                CVS[i] = true;
+            }
         }
     }
 
@@ -58,6 +88,7 @@ public class GenerateMapVis : MonoBehaviour
 
     void GenerateVisArrays()
     {
+        CVS = new bool[map.leafLump.leafCount];
         leafRoots = new GameObject[map.leafLump.leafCount][];
         for (int i = 0; i < map.leafLump.leafCount; i++)
         {
@@ -132,7 +163,7 @@ public class GenerateMapVis : MonoBehaviour
         faceObject.renderer.material.mainTexture = map.miptexLump.textures[map.texinfoLump.texinfo[face.texinfo_id].miptex];
         faceObject.AddComponent<MeshCollider>();
         faceObject.isStatic = true;
-        faceObject.renderer.enabled = false;
+        //faceObject.renderer.enabled = false;
 
         return faceObject;
     }
