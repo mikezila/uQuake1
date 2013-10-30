@@ -39,6 +39,9 @@ public class BSP29map
         ReadPlanes();
 		ReadNodes();
 
+        Debug.Log("Leafcount: " + leafLump.leafCount.ToString());
+        visLump.PrintInfo();
+
         BSPfile.BaseStream.Dispose();
     }
 
@@ -185,9 +188,10 @@ public class BSP29map
     {
         visLump = new BSPvis();
         visLump.pvs = new int[header.directory[4].length];
+        BSPfile.BaseStream.Seek(header.directory[4].offset, SeekOrigin.Begin);
         for (int i = 0; i < header.directory[4].length; i++)
         {
-            visLump.pvs[i] = (int)BSPfile.ReadUInt16();
+            visLump.pvs[i] = (int)BSPfile.ReadByte();
         }
     }
 

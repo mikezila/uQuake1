@@ -14,7 +14,6 @@ public class BSPvis
 
     public void PrintInfo()
     {
-        Debug.Log("Vis Data:\r\n");
         string blob = "";
         foreach (int i in pvs)
         {

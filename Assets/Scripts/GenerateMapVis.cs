@@ -8,7 +8,6 @@ public class GenerateMapVis : MonoBehaviour
     private int faceCount = 0;
     private GameObject[][] leafRoots;
     private Transform player;
-    private bool[] CVS;
 
     void Start()
     {
@@ -20,45 +19,61 @@ public class GenerateMapVis : MonoBehaviour
 
     void Update()
     {
-        //if (Input.GetKeyDown(KeyCode.A))
-        {
-            int child = BSPlookup(0);
-            while (child >= 0)
-            {
-                //Debug.Log("Looking up child " + child.ToString());
-                child = BSPlookup(child);
-            }
+        RenderPVS(WalkBSP());
 
-            child = -(child + 1);
-            Debug.Log("In Leaf: " + child.ToString());
-            UpdatePVS(child);
+        if (Input.GetKeyDown(KeyCode.A))
+        {
+            Debug.Log("In Leaf: " + WalkBSP().ToString() + " - " + map.leafLump.leafs[WalkBSP()].ToString());
         }
     }
 
-    private void UpdatePVS(int leaf)
+    // This uses the bsp lookup method to find the leaf
+    // the camera is in, and returns it.
+    private int WalkBSP()
     {
+        int child = BSPlookup(0);
+        while (child >= 0)
+        {
+            child = BSPlookup(child);
+        }
+
+        child = -(child + 1);
+        return child;
+    }
+
+    private void RenderPVS(int leaf)
+    {
+        //Debug.Log("Rendering PVS for Leaf: " + leaf.ToString());
         for (int i = 0; i < leafRoots.Length; i++)
         {
             foreach (GameObject go in leafRoots[i])
             {
-                go.renderer.material.color = Color.blue;
+                go.renderer.enabled = false;
             }
         }
 
+        if (leaf != 0)
+        {
+            //bool[] PVS = GetCVS(map.leafLump.leafs[leaf].vislist);
+        }
+
+
         foreach (GameObject go in leafRoots[leaf])
         {
-            go.renderer.material.color = Color.green;
+            go.renderer.enabled = true;
         }
+
     }
 
-    private void GetCVS(int index)
+    private bool[] GetCVS(int index)
     {
+        bool[] CVS = new bool[map.leafLump.leafCount];
         for (int i = 0; i < CVS.Length; i++)
         {
             CVS[i] = false;
         }
 
-        for (int i = 0; i < map.leafLump.leafCount; i++)
+        for (int i = 0; i < CVS.Length; i++)
         {
             if (map.visLump.pvs[index + i] == 0)
             {
@@ -70,8 +85,11 @@ public class GenerateMapVis : MonoBehaviour
                 CVS[i] = true;
             }
         }
+
+        return CVS;
     }
 
+    // Walks the BSP tree, call this recursivly until you get a negative number
     private int BSPlookup(int node)
     {
         int child;
@@ -88,7 +106,6 @@ public class GenerateMapVis : MonoBehaviour
 
     void GenerateVisArrays()
     {
-        CVS = new bool[map.leafLump.leafCount];
         leafRoots = new GameObject[map.leafLump.leafCount][];
         for (int i = 0; i < map.leafLump.leafCount; i++)
         {
