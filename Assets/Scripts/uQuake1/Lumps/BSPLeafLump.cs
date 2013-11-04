@@ -13,6 +13,11 @@ public class BSPLeafLump
     {
     }
 
+    public void GetLeafInfo(int leaf)
+    {
+        Debug.Log("Leaf " + leaf.ToString() + " " + leafs[leaf].ToString());
+    }
+
     public void PrintInfo()
     {
         Debug.Log("Leafs:\r\n");

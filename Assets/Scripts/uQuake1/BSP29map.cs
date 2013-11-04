@@ -29,8 +29,6 @@ public class BSP29map
         header = new BSPHeader(BSPfile);
         palette = new BSPColors();
 
-        header.PrintInfo();
-
         ReadEntities();
         ReadFaces();
         ReadEdges();
@@ -45,12 +43,6 @@ public class BSP29map
         ReadVisData();
 
         Debug.Log("Leafcount: " + leafLump.leafCount.ToString());
-        Debug.Log("Bytes: " + Mathf.FloorToInt(((leafLump.leafCount - 1) + 7) / 8));
-
-        for (int i = 19111; i < header.directory[4].length; i++)
-        {
-            Debug.Log(visLump.compressedVIS[i].ToString());
-        }
 
         ReadPVS();
 
@@ -63,15 +55,15 @@ public class BSP29map
         //for each leaf...
         for (int i = 1; i < leafLump.leafCount; i++)
         {
-            Debug.Log(i);
             int c;
             List<byte> pvs = new List<byte>();
             int offset = leafLump.leafs[i].vislist;
-            for (int j = 0; j < Mathf.FloorToInt((leafLump.leafCount + 6) / 8); j++)
+            for (int j = 0; j < Mathf.FloorToInt((leafLump.leafCount + 6) / 8); )
             {
                 if (visLump.compressedVIS[offset] != 0)
                 {
                     pvs.Add(visLump.compressedVIS[offset++]);
+                    j++;
                 }
                 else
                 {
@@ -80,8 +72,10 @@ public class BSP29map
                     while (c != 0)
                     {
                         pvs.Add((byte)0);
+                        j++;
                         c--;
                     }
+
                 }
             }
             leafLump.leafs[i].pvs = new BitArray(pvs.ToArray());
