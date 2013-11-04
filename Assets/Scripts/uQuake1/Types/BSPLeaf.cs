@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Collections;
 using UnityEngine;
 
 
@@ -13,6 +10,7 @@ public class BSPLeaf
     public Vector3 maxs;
     public int lface_index;
     public int num_lfaces;
+    public BitArray pvs;
 
     public BSPLeaf(int type, int vislist, Vector3 mins, Vector3 maxs, ushort lface_index, ushort num_lfaces)
     {
@@ -21,8 +19,9 @@ public class BSPLeaf
         this.lface_index = (int)lface_index;
         this.num_lfaces = (int)num_lfaces;
 
-        this.mins = SwizVert(mins);
-        this.maxs = SwizVert(maxs);
+        // We don't use the bounds for anything, so no need to swiz them.
+        //this.mins = SwizVert(mins);
+        //this.maxs = SwizVert(maxs);
     }
 
     private Vector3 SwizVert(Vector3 vert)

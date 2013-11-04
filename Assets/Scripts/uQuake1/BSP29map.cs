@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 using System.IO;
 
 public class BSP29map
@@ -16,16 +17,19 @@ public class BSP29map
     public BSPTexInfoLump texinfoLump;
     public BSPMipTexLump miptexLump;
     public BSPMarkSurfaces markSurfacesLump;
-    public BSPvis visLump;
+    public BSPvisLump visLump;
     public BSPLeafLump leafLump;
     public BSPPlaneLump planeLump;
-	public BSPNodeLump nodeLump;
-	
+    public BSPNodeLump nodeLump;
+    public BSPModelLump modelLump;
+
     public BSP29map(string filename)
     {
         BSPfile = new BinaryReader(File.Open("Assets/Resources/Maps/" + filename, FileMode.Open));
         header = new BSPHeader(BSPfile);
         palette = new BSPColors();
+
+        header.PrintInfo();
 
         ReadEntities();
         ReadFaces();
@@ -34,15 +38,54 @@ public class BSP29map
         ReadTexinfo();
         ReadTextures();
         ReadMarkSurfaces();
-        ReadVisData();
         ReadLeafs();
         ReadPlanes();
-		ReadNodes();
+        ReadNodes();
+        ReadModels();
+        ReadVisData();
 
         Debug.Log("Leafcount: " + leafLump.leafCount.ToString());
-        visLump.PrintInfo();
+        Debug.Log("Bytes: " + Mathf.FloorToInt(((leafLump.leafCount - 1) + 7) / 8));
+
+        for (int i = 19111; i < header.directory[4].length; i++)
+        {
+            Debug.Log(visLump.compressedVIS[i].ToString());
+        }
+
+        ReadPVS();
 
         BSPfile.BaseStream.Dispose();
+    }
+
+    // This decompresses and stores the pvs for/inside of each leaf object
+    private void ReadPVS()
+    {
+        //for each leaf...
+        for (int i = 1; i < leafLump.leafCount; i++)
+        {
+            Debug.Log(i);
+            int c;
+            List<byte> pvs = new List<byte>();
+            int offset = leafLump.leafs[i].vislist;
+            for (int j = 0; j < Mathf.FloorToInt((leafLump.leafCount + 6) / 8); j++)
+            {
+                if (visLump.compressedVIS[offset] != 0)
+                {
+                    pvs.Add(visLump.compressedVIS[offset++]);
+                }
+                else
+                {
+                    c = visLump.compressedVIS[offset + 1];
+                    offset += 2;
+                    while (c != 0)
+                    {
+                        pvs.Add((byte)0);
+                        c--;
+                    }
+                }
+            }
+            leafLump.leafs[i].pvs = new BitArray(pvs.ToArray());
+        }
     }
 
     private void ReadNodes()
@@ -186,12 +229,22 @@ public class BSP29map
 
     private void ReadVisData()
     {
-        visLump = new BSPvis();
-        visLump.pvs = new int[header.directory[4].length];
+        visLump = new BSPvisLump();
         BSPfile.BaseStream.Seek(header.directory[4].offset, SeekOrigin.Begin);
-        for (int i = 0; i < header.directory[4].length; i++)
+        visLump.compressedVIS = BSPfile.ReadBytes(header.directory[4].length);
+    }
+
+    private void ReadModels()
+    {
+        modelLump = new BSPModelLump();
+        BSPfile.BaseStream.Seek(header.directory[14].offset, SeekOrigin.Begin);
+        int modelCount = header.directory[14].length / 64;
+        modelLump.models = new BSPModel[modelCount];
+        for (int i = 0; i < modelCount; i++)
         {
-            visLump.pvs[i] = (int)BSPfile.ReadByte();
+            BSPfile.BaseStream.Seek(52, SeekOrigin.Current);
+            modelLump.models[i] = new BSPModel(BSPfile.ReadInt32());
+            BSPfile.BaseStream.Seek(8, SeekOrigin.Current);
         }
     }
 
@@ -207,5 +260,45 @@ public class BSP29map
             leafLump.leafs[i] = new BSPLeaf(BSPfile.ReadInt32(), BSPfile.ReadInt32(), new Vector3((float)BSPfile.ReadInt16(), (float)BSPfile.ReadInt16(), (float)BSPfile.ReadInt16()), new Vector3((float)BSPfile.ReadInt16(), (float)BSPfile.ReadInt16(), (float)BSPfile.ReadInt16()), BSPfile.ReadUInt16(), BSPfile.ReadUInt16());
             BSPfile.BaseStream.Seek(4, SeekOrigin.Current); // skip ambient sound bytes we don't care about
         }
+    }
+
+    // Stole this, no idea how it works.
+    private const int MAX_MAP_LEAFS = 8192;
+    private BitArray DecompressVis(byte[] PVSarray, BSPModel model)
+    {
+        int c;
+        int outCount = 0;
+        int row;
+        int ofs = 0;
+        byte[] decompressed = new byte[MAX_MAP_LEAFS / 8];
+
+        row = (model.numLeafs + 7) >> 3;
+
+        if (PVSarray == null)
+        {	// no vis info, so make all visible
+            while (row != 0)
+            {
+                decompressed[outCount++] = 0xff;
+                row--;
+            }
+            return new BitArray(decompressed);
+        }
+
+        do
+        {
+            if (PVSarray[ofs] != 0)
+            {
+                decompressed[outCount++] = PVSarray[ofs++];
+                continue;
+            }
+            c = PVSarray[ofs + 1];
+            ofs += 2;
+            while (c != 0)
+            {
+                decompressed[outCount++] = 0;
+                c--;
+            }
+        } while (outCount < row);
+        return new BitArray(decompressed);
     }
 }

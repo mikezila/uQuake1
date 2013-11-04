@@ -8,6 +8,7 @@ public class GenerateMapVis : MonoBehaviour
     private int faceCount = 0;
     private GameObject[][] leafRoots;
     private Transform player;
+    private bool lockpvs = false;
 
     void Start()
     {
@@ -19,28 +20,23 @@ public class GenerateMapVis : MonoBehaviour
 
     void Update()
     {
-        RenderPVS(WalkBSP());
+        if (!lockpvs)
+        {
+            RenderPVS(WalkBSP());
+        }
 
+        // Pressing A will toggle locking the PVS
         if (Input.GetKeyDown(KeyCode.A))
         {
-            Debug.Log("In Leaf: " + WalkBSP().ToString() + " - " + map.leafLump.leafs[WalkBSP()].ToString());
+            lockpvs = !lockpvs;
+            Debug.Log("PVS lock: " + lockpvs.ToString());
         }
     }
 
-    // This uses the bsp lookup method to find the leaf
-    // the camera is in, and returns it.
-    private int WalkBSP()
-    {
-        int child = BSPlookup(0);
-        while (child >= 0)
-        {
-            child = BSPlookup(child);
-        }
 
-        child = -(child + 1);
-        return child;
-    }
-
+    // This will retrieve and render the PVS for the leaf you pass it
+    // Must run every frame/however often you want to update the pvs.
+    // you can cease calling this to "lock" the pvs.
     private void RenderPVS(int leaf)
     {
         //Debug.Log("Rendering PVS for Leaf: " + leaf.ToString());
@@ -52,43 +48,33 @@ public class GenerateMapVis : MonoBehaviour
             }
         }
 
-        if (leaf != 0)
+        if (leaf == 0)
         {
-            //bool[] PVS = GetCVS(map.leafLump.leafs[leaf].vislist);
+            for (int i = 0; i < leafRoots.Length; i++)
+            {
+                foreach (GameObject go in leafRoots[i])
+                {
+                    go.renderer.enabled = true;
+                }
+            }
+            return;
         }
 
-
-        foreach (GameObject go in leafRoots[leaf])
+        for (int j = 0; j < map.leafLump.leafs[leaf].pvs.Length; j++)
         {
-            go.renderer.enabled = true;
+            if (map.leafLump.leafs[leaf].pvs[j] == true)
+            {
+                foreach (GameObject go in leafRoots[j+1]) //+1 because leaf 0 is bullshit, trust me
+                {
+                    go.renderer.enabled = true;
+                }
+            }
         }
 
     }
 
-    private bool[] GetCVS(int index)
-    {
-        bool[] CVS = new bool[map.leafLump.leafCount];
-        for (int i = 0; i < CVS.Length; i++)
-        {
-            CVS[i] = false;
-        }
 
-        for (int i = 0; i < CVS.Length; i++)
-        {
-            if (map.visLump.pvs[index + i] == 0)
-            {
-                CVS[i] = true;
-            }
-            else
-            {
-                i += map.visLump.pvs[index + i];
-                CVS[i] = true;
-            }
-        }
-
-        return CVS;
-    }
-
+    #region BSP Lookup
     // Walks the BSP tree, call this recursivly until you get a negative number
     private int BSPlookup(int node)
     {
@@ -104,6 +90,22 @@ public class GenerateMapVis : MonoBehaviour
         return child;
     }
 
+    // This uses the bsp lookup method to find the leaf
+    // the camera is in, and returns it.
+    private int WalkBSP()
+    {
+        int child = BSPlookup(0);
+        while (child >= 0)
+        {
+            child = BSPlookup(child);
+        }
+
+        child = -(child + 1);
+        return child;
+    }
+    #endregion
+
+    #region Object array generation
     void GenerateVisArrays()
     {
         leafRoots = new GameObject[map.leafLump.leafCount][];
@@ -124,6 +126,7 @@ public class GenerateMapVis : MonoBehaviour
             }
         }
     }
+    #endregion
 
     #region Face Object Generation
 

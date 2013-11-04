@@ -6,6 +6,11 @@ using System.Text;
 
 public class BSPModel
 {
-    public BSPModel() { }
+    public int numLeafs;
+
+    public BSPModel(int numLeafs)
+    {
+        this.numLeafs = numLeafs;
+    }
 }
 
