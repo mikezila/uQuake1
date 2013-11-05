@@ -42,7 +42,9 @@ public class BSP29map
         ReadModels();
         ReadVisData();
 
-        Debug.Log("Leafcount: " + leafLump.leafCount.ToString());
+        Debug.Log("VisData Length: " + visLump.compressedVIS.Length);
+        Debug.Log("Leafcount: " + leafLump.numLeafs.ToString());
+        Debug.Log("World Leafs: " + modelLump.models[0].numLeafs.ToString());
 
         ReadPVS();
 
@@ -53,12 +55,14 @@ public class BSP29map
     private void ReadPVS()
     {
         //for each leaf...
-        for (int i = 1; i < leafLump.leafCount; i++)
+        for (int i = 1; i < leafLump.numLeafs; i++)
         {
             int c;
+            //Debug.Log(i);
             List<byte> pvs = new List<byte>();
             int offset = leafLump.leafs[i].vislist;
-            for (int j = 0; j < Mathf.FloorToInt((leafLump.leafCount + 6) / 8); )
+            if (offset == -1) continue;
+            for (int j = 0; j < Mathf.FloorToInt((modelLump.models[0].numLeafs + 7) / 8); )
             {
                 if (visLump.compressedVIS[offset] != 0)
                 {
@@ -178,8 +182,11 @@ public class BSP29map
         // Read the texture lump header and the offsets for the textures
         BSPfile.BaseStream.Seek(header.directory[2].offset, SeekOrigin.Begin);
         miptexLump = new BSPMipTexLump(BSPfile.ReadInt32());
+        
+        
         for (int i = 0; i < miptexLump.tex_count; i++)
         {
+            
             miptexLump.LoadOffset((int)BSPfile.ReadUInt32());
         }
 
@@ -189,7 +196,6 @@ public class BSP29map
             BSPfile.BaseStream.Seek(header.directory[2].offset + miptexLump.tex_offsets[i], SeekOrigin.Begin);
             miptexLump.texture_headers[i] = new BSPMipTexture(BSPfile.ReadChars(16), (int)BSPfile.ReadUInt32(), (int)BSPfile.ReadUInt32(), (int)BSPfile.ReadUInt32());
         }
-
         // Now use those texture objects and the palette to make our Texture2D
         // objects that can be used directly
         for (int i = 0; i < miptexLump.tex_count; i++)
@@ -236,8 +242,8 @@ public class BSP29map
         modelLump.models = new BSPModel[modelCount];
         for (int i = 0; i < modelCount; i++)
         {
-            BSPfile.BaseStream.Seek(52, SeekOrigin.Current);
-            modelLump.models[i] = new BSPModel(BSPfile.ReadInt32());
+            BSPfile.BaseStream.Seek(36, SeekOrigin.Current);
+            modelLump.models[i] = new BSPModel(new int[] { BSPfile.ReadInt32(), BSPfile.ReadInt32(), BSPfile.ReadInt32(), BSPfile.ReadInt32() }, BSPfile.ReadInt32());
             BSPfile.BaseStream.Seek(8, SeekOrigin.Current);
         }
     }
@@ -247,52 +253,12 @@ public class BSP29map
         leafLump = new BSPLeafLump();
         int leafCount = header.directory[10].length / 28;
         leafLump.leafs = new BSPLeaf[leafCount];
-        leafLump.leafCount = leafCount;
+        leafLump.numLeafs = leafCount;
         BSPfile.BaseStream.Seek(header.directory[10].offset, SeekOrigin.Begin);
         for (int i = 0; i < leafCount; i++)
         {
             leafLump.leafs[i] = new BSPLeaf(BSPfile.ReadInt32(), BSPfile.ReadInt32(), new Vector3((float)BSPfile.ReadInt16(), (float)BSPfile.ReadInt16(), (float)BSPfile.ReadInt16()), new Vector3((float)BSPfile.ReadInt16(), (float)BSPfile.ReadInt16(), (float)BSPfile.ReadInt16()), BSPfile.ReadUInt16(), BSPfile.ReadUInt16());
             BSPfile.BaseStream.Seek(4, SeekOrigin.Current); // skip ambient sound bytes we don't care about
         }
-    }
-
-    // Stole this, no idea how it works.
-    private const int MAX_MAP_LEAFS = 8192;
-    private BitArray DecompressVis(byte[] PVSarray, BSPModel model)
-    {
-        int c;
-        int outCount = 0;
-        int row;
-        int ofs = 0;
-        byte[] decompressed = new byte[MAX_MAP_LEAFS / 8];
-
-        row = (model.numLeafs + 7) >> 3;
-
-        if (PVSarray == null)
-        {	// no vis info, so make all visible
-            while (row != 0)
-            {
-                decompressed[outCount++] = 0xff;
-                row--;
-            }
-            return new BitArray(decompressed);
-        }
-
-        do
-        {
-            if (PVSarray[ofs] != 0)
-            {
-                decompressed[outCount++] = PVSarray[ofs++];
-                continue;
-            }
-            c = PVSarray[ofs + 1];
-            ofs += 2;
-            while (c != 0)
-            {
-                decompressed[outCount++] = 0;
-                c--;
-            }
-        } while (outCount < row);
-        return new BitArray(decompressed);
     }
 }

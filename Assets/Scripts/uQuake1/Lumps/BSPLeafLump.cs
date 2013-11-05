@@ -7,7 +7,7 @@ using UnityEngine;
 public class BSPLeafLump
 {
     public BSPLeaf[] leafs;
-    public int leafCount;
+    public int numLeafs;
 
     public BSPLeafLump()
     {

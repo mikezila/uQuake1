@@ -1,0 +1,1 @@
+uQuake will always load "map.bsp" from this folder, so put the map you want to load here with that name.  Not in a .pak, not in a .pk3, not in a .zip; just the raw .bsp.

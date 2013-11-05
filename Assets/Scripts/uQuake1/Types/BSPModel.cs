@@ -7,9 +7,11 @@ using System.Text;
 public class BSPModel
 {
     public int numLeafs;
+    public int[] nodes;
 
-    public BSPModel(int numLeafs)
+    public BSPModel(int[] nodes, int numLeafs)
     {
+        this.nodes = nodes;
         this.numLeafs = numLeafs;
     }
 }

@@ -108,8 +108,8 @@ public class GenerateMapVis : MonoBehaviour
     #region Object array generation
     void GenerateVisArrays()
     {
-        leafRoots = new GameObject[map.leafLump.leafCount][];
-        for (int i = 0; i < map.leafLump.leafCount; i++)
+        leafRoots = new GameObject[map.leafLump.numLeafs][];
+        for (int i = 0; i < map.leafLump.numLeafs; i++)
         {
             leafRoots[i] = new GameObject[map.leafLump.leafs[i].num_lfaces];
         }
@@ -117,7 +117,7 @@ public class GenerateMapVis : MonoBehaviour
 
     void GenerateVisObjects()
     {
-        for (int i = 0; i < map.leafLump.leafCount; i++)
+        for (int i = 0; i < map.leafLump.numLeafs; i++)
         {
             for (int j = 0; j < map.leafLump.leafs[i].num_lfaces; j++)
             {
