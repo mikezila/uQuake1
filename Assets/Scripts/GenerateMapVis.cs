@@ -9,6 +9,7 @@ public class GenerateMapVis : MonoBehaviour
     private GameObject[][] leafRoots;
     private Transform player;
     private bool lockpvs = false;
+    private int lastpvs = 0;
 
     void Start()
     {
@@ -22,7 +23,10 @@ public class GenerateMapVis : MonoBehaviour
     {
         if (!lockpvs)
         {
-            RenderPVS(WalkBSP());
+            int pvs = WalkBSP();
+            if (pvs != lastpvs)
+                RenderPVS(pvs);
+            lastpvs = pvs;
         }
 
         // Pressing A will toggle locking the PVS
@@ -64,7 +68,7 @@ public class GenerateMapVis : MonoBehaviour
         {
             if (map.leafLump.leafs[leaf].pvs[j] == true)
             {
-                foreach (GameObject go in leafRoots[j+1]) //+1 because leaf 0 is bullshit, trust me
+                foreach (GameObject go in leafRoots[j + 1]) //+1 because leaf 0 is bullshit, trust me
                 {
                     go.renderer.enabled = true;
                 }
@@ -75,7 +79,7 @@ public class GenerateMapVis : MonoBehaviour
 
 
     #region BSP Lookup
-    // Walks the BSP tree, call this recursivly until you get a negative number
+    // Tests a node's plane, and returns the child to be tested next, or the leaf the player is in.
     private int BSPlookup(int node)
     {
         int child;
@@ -92,9 +96,10 @@ public class GenerateMapVis : MonoBehaviour
 
     // This uses the bsp lookup method to find the leaf
     // the camera is in, and returns it.
-    private int WalkBSP()
+    // Calling this (just one time) will give you the leaf the player is in.
+    private int WalkBSP(int headnode = 0)
     {
-        int child = BSPlookup(0);
+        int child = BSPlookup(headnode);
         while (child >= 0)
         {
             child = BSPlookup(child);

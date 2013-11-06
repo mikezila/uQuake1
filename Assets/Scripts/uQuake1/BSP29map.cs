@@ -42,6 +42,8 @@ public class BSP29map
         ReadModels();
         ReadVisData();
 
+        //modelLump.PrintInfo();
+        
         Debug.Log("VisData Length: " + visLump.compressedVIS.Length);
         Debug.Log("Leafcount: " + leafLump.numLeafs.ToString());
         Debug.Log("World Leafs: " + modelLump.models[0].numLeafs.ToString());

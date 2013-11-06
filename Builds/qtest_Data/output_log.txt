@@ -11,7 +11,7 @@ Platform assembly: C:\Users\Matt\github\uQuake1\Builds\qtest_Data\Managed\UnityE
 Loading C:\Users\Matt\github\uQuake1\Builds\qtest_Data\Managed\UnityEngine.dll into Unity Child Domain
 Platform assembly: C:\Users\Matt\github\uQuake1\Builds\qtest_Data\Managed\Assembly-CSharp.dll (this message is harmless)
 Loading C:\Users\Matt\github\uQuake1\Builds\qtest_Data\Managed\Assembly-CSharp.dll into Unity Child Domain
-- Completed reload, in  0.042 seconds
+- Completed reload, in  0.239 seconds
 desktop: 1920x1080 60Hz; virtual: 1920x1080 at 0,0
 <RI> Initializing input.
 <RI> Input initialized.
@@ -24,55 +24,11 @@ VisData Length: 731721
  
 (Filename: C:/BuildAgent/work/ea95e74f6e5f192d/Runtime/ExportGenerated/StandalonePlayer/UnityEngineDebug.cpp Line: 54)
 
-Leafcount: 9120
+Leafcount: 9121
  
 (Filename: C:/BuildAgent/work/ea95e74f6e5f192d/Runtime/ExportGenerated/StandalonePlayer/UnityEngineDebug.cpp Line: 54)
 
 World Leafs: 6925
- 
-(Filename: C:/BuildAgent/work/ea95e74f6e5f192d/Runtime/ExportGenerated/StandalonePlayer/UnityEngineDebug.cpp Line: 54)
-
-Leaf 2908 Type: -1 Vislist: 279125 Mins/Maxs: (0.0, 0.0, 0.0) / (0.0, 0.0, 0.0)
- 
-(Filename: C:/BuildAgent/work/ea95e74f6e5f192d/Runtime/ExportGenerated/StandalonePlayer/UnityEngineDebug.cpp Line: 54)
-
-PVS lock: True
- 
-(Filename: C:/BuildAgent/work/ea95e74f6e5f192d/Runtime/ExportGenerated/StandalonePlayer/UnityEngineDebug.cpp Line: 54)
-
-PVS lock: False
- 
-(Filename: C:/BuildAgent/work/ea95e74f6e5f192d/Runtime/ExportGenerated/StandalonePlayer/UnityEngineDebug.cpp Line: 54)
-
-PVS lock: True
- 
-(Filename: C:/BuildAgent/work/ea95e74f6e5f192d/Runtime/ExportGenerated/StandalonePlayer/UnityEngineDebug.cpp Line: 54)
-
-PVS lock: False
- 
-(Filename: C:/BuildAgent/work/ea95e74f6e5f192d/Runtime/ExportGenerated/StandalonePlayer/UnityEngineDebug.cpp Line: 54)
-
-PVS lock: True
- 
-(Filename: C:/BuildAgent/work/ea95e74f6e5f192d/Runtime/ExportGenerated/StandalonePlayer/UnityEngineDebug.cpp Line: 54)
-
-PVS lock: False
- 
-(Filename: C:/BuildAgent/work/ea95e74f6e5f192d/Runtime/ExportGenerated/StandalonePlayer/UnityEngineDebug.cpp Line: 54)
-
-PVS lock: True
- 
-(Filename: C:/BuildAgent/work/ea95e74f6e5f192d/Runtime/ExportGenerated/StandalonePlayer/UnityEngineDebug.cpp Line: 54)
-
-PVS lock: False
- 
-(Filename: C:/BuildAgent/work/ea95e74f6e5f192d/Runtime/ExportGenerated/StandalonePlayer/UnityEngineDebug.cpp Line: 54)
-
-PVS lock: True
- 
-(Filename: C:/BuildAgent/work/ea95e74f6e5f192d/Runtime/ExportGenerated/StandalonePlayer/UnityEngineDebug.cpp Line: 54)
-
-PVS lock: False
  
 (Filename: C:/BuildAgent/work/ea95e74f6e5f192d/Runtime/ExportGenerated/StandalonePlayer/UnityEngineDebug.cpp Line: 54)
 
