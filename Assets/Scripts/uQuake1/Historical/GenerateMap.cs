@@ -10,6 +10,10 @@ public class GenerateMap : MonoBehaviour
     private int faceCount = 0;
     private Stopwatch stopwatch;
 
+	// This file is kept for historical purposes only.  This version of the map generator is missing many optimzations
+	// and does not handle PVS/VIS information at all.  I don't even know if it actually works with the other changes
+	// I've made since I started work on GenerateMapVis.  It is kept around for historical reasons only.
+
     void Start()
     {
         stopwatch = new Stopwatch();

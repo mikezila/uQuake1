@@ -1,6 +1,10 @@
 using UnityEngine;
 using System.Collections;
 
+// This is a modified mouselook script that can be thrown on a camera to be able to fly around the map.
+// I don't remember if I made it or if someone else did.
+
+
 /// MouseLook rotates the transform based on the mouse delta.
 /// Minimum and Maximum values can be used to constrain the possible rotation
 
@@ -25,8 +29,8 @@ public class MouseCam : MonoBehaviour {
 	public float minimumX = -360F;
 	public float maximumX = 360F;
 
-	public float minimumY = -60F;
-	public float maximumY = 60F;
+	public float minimumY = -90F;
+	public float maximumY = 90F;
 
 	float rotationY = 0F;
 

@@ -13,6 +13,8 @@ public class BSPColors
 
     public BSPColors()
     {
+		// This won't work unless the palette from Quake is at this location.
+		// The palette/colors aren't generated, they're taken straight from that palette.
         colorLump = new BinaryReader(File.Open("Assets/Resources/id1/palette.lmp", FileMode.Open));
         RipColors();
         colorLump.BaseStream.Dispose();
