@@ -13,7 +13,7 @@ No, but a lot is already done.
 
 Faces and their textures are reconstructed at run-time using only the data in .bsp, no conversion or re/de-compilation is needed.  The only external file used is a binary lump containing the Quake palette, which is the same binary lump used by offical Quake and more traditional engines.
 
-"vis" data is used, so only visible objects are rendered.  Vis support is still a little buggy, and incomplete.  Currently models other than the world itself (such as doors and moving switches) will be missing (or rather their renderer's are turned off) because I am currently only walking the bsp tree for the world itself, when each of these sub-models has it's own to walk, and then a visible set to render.  This will be simple to fix, though.
+"vis" data is not used in any way.  I had originally meant to use the visible sets data in the .bsp to cull geometry to boost performance, but it proved to be a worthless effort.  On anything more powerful than an Intel HD 4000 you can render even the largest maps wholesale with no slowdown at all.
 
 Lightmaps aren't parsed or used yet.  Entities aren't parsed or used either, but I'd like to at least place the player spawn.  I think recreating the whole engine with switches and monsters and guns is out of my reach, but we'll see.
 
@@ -27,8 +27,12 @@ It should, but there are issues with some.  There are issues parsing the texture
 
 ### Does this work with Quake2 or Quake3 maps?  Half-Life?
 
-No.  I have a sister project to this one that can load Quake 3 maps in the same way.  It's here: https://github.com/mikezila/uQuake  I'd love to support Half-Life maps, but it's not a high priority.  As for .bsp for higher/newer bsp engines, like Source and beyond, I'm not sure.  I doubt it.  Source maps are kind of complex, and so much of their visual presentation is reliant on image effects and props.  It would be difficult to make a meaninful loader for those maps that wasn't just a Source engine simulator in Unity.  Which actually sound kind of fun, but I think Quake is much softer target.
+No.  I have a sister project to this one that can load Quake 3 maps in the same way.  It's here: https://github.com/mikezila/uQuake  I'd love to support Half-Life maps, but it's not a high priority.  As for .bsp for higher/newer bsp engines, like Source and beyond, I'm not sure.  I doubt it.  Source maps are kind of complex, and so much of their visual presentation is reliant on image effects and props.  It would be difficult to make a meaninful loader for those maps that wasn't just a Source engine simulator in Unity, which is beyond the scope of what I'm passionate about
 
 ### Can I use this for xyz?
 
-Yes, please.  You can use this to do anything you like.  I didn't write many code comments, and I admit that some parts of it are a little write-only, as even I'm a little mystified by some of it already (mainly the pvs/vis system, it's a mess) but the classes to read the bsp's data are pretty self explanatory, and should be pretty simple to re-use in a different project.  But yes you're free to take this code and do whatever you want with it.  I don't need any credit or anything, just have fun.  If you do use it please tell me, only because I'd love to see what you make with it.
+Yes, please.  You can use this to do anything you like.  I didn't write many code comments, but if you can make sense of it and use it, please do.  This project is in the public domain.  No permission from me is needed to do anything.
+
+### Can I pay you to make a version of this for XYZ game?
+
+Maybe, but not likely.  Email me with what you want and maybe I can work with you.  This project is really one of passion, so please don't be upset if I turn you down because whatever game you need this ported for just doesn't light my fire.  It's not personal, it's just that I do this for fun, and if the fun isn't there, then the project isn't happening.
