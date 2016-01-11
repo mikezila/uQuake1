@@ -1,40 +1,64 @@
 ﻿using UnityEngine;
-using System.Collections;
+using UnityEditor;
 using System.Collections.Generic;
-using System.Diagnostics;
 
 public class GenerateMap : MonoBehaviour
 {
     public string mapName;
     private BSP29map map;
-    private int faceCount = 0;
-    private Stopwatch stopwatch;
-
-	// This file is kept for historical purposes only.  This version of the map generator is missing many optimzations
-	// and does not handle PVS/VIS information at all.  I don't even know if it actually works with the other changes
-	// I've made since I started work on GenerateMapVis.  It is kept around for historical reasons only.
 
     void Start()
     {
-        stopwatch = new Stopwatch();
-        stopwatch.Start();
-        map = new BSP29map(mapName);
-        UnityEngine.Debug.Log("Parsed bsp in: " + stopwatch.ElapsedMilliseconds.ToString());
-        stopwatch.Reset();
-        stopwatch.Start();
-        foreach (BSPFace face in map.facesLump.faces)
-        {
-            GenerateFaceObject(face);
-            faceCount++;
-			
-        }
-        UnityEngine.Debug.Log("Created " + faceCount.ToString() + " GameObjects in: " + stopwatch.ElapsedMilliseconds.ToString());
-        stopwatch.Stop();
+
     }
 
-    void GenerateFaceObject(BSPFace face)
+    void Update()
     {
-        GameObject faceObject = new GameObject("BSPface " + faceCount.ToString());
+
+    }
+
+    void PopulateLevel()
+    {
+        map = new BSP29map(mapName);
+        GenerateMapObjects();
+    }
+
+    void GenerateMapObjects()
+    {
+        foreach (BSPFace face in map.facesLump.faces)
+            GenerateFaceObject(face);
+    }
+
+
+    #region Editor Widgets
+
+    [CustomEditor(typeof(GenerateMap))]
+    class GenerateMapInEditor : Editor
+    {
+        public override void OnInspectorGUI()
+        {
+            DrawDefaultInspector();
+            GenerateMap script = (GenerateMap)target;
+            if (GUILayout.Button("Generate"))
+                script.PopulateLevel();
+
+            if (GUILayout.Button("Clear"))
+            {
+                var children = new List<GameObject>();
+                foreach (Transform child in script.gameObject.transform) children.Add(child.gameObject);
+                children.ForEach(child => DestroyImmediate(child));
+            }
+        }
+    }
+
+    #endregion
+
+
+    #region Face Object Generation
+
+    GameObject GenerateFaceObject(BSPFace face)
+    {
+        GameObject faceObject = new GameObject("BSPface");
         faceObject.transform.parent = gameObject.transform;
         Mesh faceMesh = new Mesh();
         faceMesh.name = "BSPmesh";
@@ -82,14 +106,23 @@ public class GenerateMap : MonoBehaviour
         faceObject.AddComponent<MeshFilter>();
         faceObject.GetComponent<MeshFilter>().mesh = faceMesh;
         faceObject.AddComponent<MeshRenderer>();
-        faceObject.renderer.material.mainTexture = map.miptexLump.textures[map.texinfoLump.texinfo[face.texinfo_id].miptex];
-        faceObject.AddComponent<MeshCollider>();
-        string texName = faceObject.renderer.material.mainTexture.name;
-        if (texName == "trigger" || texName == "skip")
+
+        // We make a material and then use shared material to work around a leak in the editor
+        Material mat = new Material(Shader.Find("Diffuse"));
+        mat.mainTexture = map.miptexLump.textures[map.texinfoLump.texinfo[face.texinfo_id].miptex];
+        faceObject.GetComponent<Renderer>().sharedMaterial = mat;
+
+        // Turn off the renderer if the face is part of a trigger brush
+        string texName = map.miptexLump.textures[map.texinfoLump.texinfo[face.texinfo_id].miptex].name;
+        if (texName == "trigger")
         {
-            faceObject.collider.enabled = false;
-            faceObject.renderer.enabled = false;
+            faceObject.GetComponent<Renderer>().enabled = false;
         }
+
+        faceObject.AddComponent<MeshCollider>();
         faceObject.isStatic = true;
+
+        return faceObject;
     }
+    #endregion
 }

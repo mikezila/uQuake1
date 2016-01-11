@@ -30,11 +30,11 @@ public class BSPTexInfo
         return "Vec3T: " + vec3t.ToString() + " OffT: " + offt.ToString() + " Vec3S: " + vec3s.ToString() + " OffS: " + offs.ToString() + " Miptex: " + miptex.ToString() + " Flags: " + flags.ToString();
     }
 
-    // Maybe should scale the offsets too?
+    // Quake and Unity use differing XYZ systems and scales.
+    // Here we convert Quake-style ZYX to Unity-style XYZ
+    // Call it Swizzlin'.
     private void Swizzle()
     {
-        //vec3s.Scale(new Vector3(0.03f, 0.03f, 0.03f));
-        //vec3t.Scale(new Vector3(0.03f, 0.03f, 0.03f));
 
         float tempx = -vec3s.x;
         float tempy = vec3s.z;
