@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using UnityEngine;
 
 public class BSP29map
@@ -15,6 +16,7 @@ public class BSP29map
     public BSPTexInfoLump texinfoLump;
     public BSPMipTexLump miptexLump;
     public BSPModelLump modelLump;
+    public BSPLightMapLump lightLump;
 
     public BSP29map(string filename)
     {
@@ -29,9 +31,15 @@ public class BSP29map
         ReadTexinfo();
         ReadTextures();
         ReadModels();
-
+        ReadLightMaps();
 
         BSPfile.BaseStream.Dispose();
+    }
+
+    private void ReadLightMaps()
+    {
+        BSPfile.BaseStream.Seek(header.directory[8].offset, SeekOrigin.Begin);
+        lightLump.RawMaps = BSPfile.ReadBytes(header.directory[8].length);
     }
 
     private void ReadVerts()
