@@ -1,5 +1,7 @@
 ﻿using UnityEngine;
+#if UNITY_EDITOR
 using UnityEditor;
+#endif
 using System.Collections.Generic;
 
 public class GenerateMap : MonoBehaviour
@@ -32,6 +34,7 @@ public class GenerateMap : MonoBehaviour
 
     #region Editor Widgets
 
+#if UNITY_EDITOR
     [CustomEditor(typeof(GenerateMap))]
     class GenerateMapInEditor : Editor
     {
@@ -49,7 +52,8 @@ public class GenerateMap : MonoBehaviour
                 children.ForEach(child => DestroyImmediate(child));
             }
         }
-    }
+    } 
+#endif
 
     #endregion
 
@@ -124,5 +128,5 @@ public class GenerateMap : MonoBehaviour
 
         return faceObject;
     }
-    #endregion
+#endregion
 }

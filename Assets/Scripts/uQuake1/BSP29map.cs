@@ -1,7 +1,5 @@
-﻿using UnityEngine;
-using System.Collections;
-using System.Collections.Generic;
-using System.IO;
+﻿using System.IO;
+using UnityEngine;
 
 public class BSP29map
 {
@@ -107,11 +105,11 @@ public class BSP29map
         // Read the texture lump header and the offsets for the textures
         BSPfile.BaseStream.Seek(header.directory[2].offset, SeekOrigin.Begin);
         miptexLump = new BSPMipTexLump(BSPfile.ReadInt32());
-        
-        
+
+
         for (int i = 0; i < miptexLump.tex_count; i++)
         {
-            
+
             miptexLump.LoadOffset((int)BSPfile.ReadUInt32());
         }
 

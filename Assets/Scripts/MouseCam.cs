@@ -36,6 +36,9 @@ public class MouseCam : MonoBehaviour {
 
 	void Update ()
 	{
+        if (Input.GetKeyDown(KeyCode.Escape))
+            Application.Quit();
+
         if (Input.GetButton("Fire1"))
             transform.position += transform.forward * Time.deltaTime * 25;
         if (Input.GetButton("Fire2"))
