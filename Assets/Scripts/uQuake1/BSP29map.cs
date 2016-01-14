@@ -135,9 +135,9 @@ public class BSP29map
         {
             miptexLump.textures[i] = new Texture2D(miptexLump.texture_headers[i].width, miptexLump.texture_headers[i].height);
             miptexLump.textures[i].name = miptexLump.texture_headers[i].name;
-            Color32[] colors = new Color32[miptexLump.texture_headers[i].PixelCount()];
+            Color32[] colors = new Color32[miptexLump.texture_headers[i].PixelCount];
             BSPfile.BaseStream.Seek(header.directory[2].Offset + miptexLump.tex_offsets[i] + miptexLump.texture_headers[i].offset, SeekOrigin.Begin);
-            for (int j = 0; j < miptexLump.texture_headers[i].PixelCount(); j++)
+            for (int j = 0; j < miptexLump.texture_headers[i].PixelCount; j++)
             {
                 int index = (int)BSPfile.ReadByte();
                 colors[j] = palette.colors[index];

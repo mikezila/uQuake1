@@ -19,8 +19,8 @@ public class BSPTexInfo
         this.vec3t = vt;
         this.miptex = miptex;
         this.flags = flags;
-        this.offs = os;
-        this.offt = ot;
+        this.offs = os * 0.03f;
+        this.offt = ot * 0.03f;
 
         Swizzle();
     }
@@ -47,9 +47,6 @@ public class BSPTexInfo
         tempz = -vec3t.y;
 
         vec3t = new Vector3(tempx, tempy, tempz);
-
-        offs = offs * 0.03f;
-        offt = offt * 0.03f;
     }
 }
 
