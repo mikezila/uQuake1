@@ -6,12 +6,11 @@ using System.Text;
 
 public class BSPLightMapLump
 {
-    public BSPLightMap[] Maps;
-    public byte[] RawMaps;
+    public BSPLightMap[] Maps { get; set; }
+    public byte[] RawMaps { get; set; }
 
     public BSPLightMapLump()
     {
-
     }
 }
 

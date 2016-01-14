@@ -10,18 +10,18 @@ public class BSPHeader
 {
     public class HeaderEntry
     {
-        public int offset;
-        public int length;
+        public int Offset { get; private set; }
+        public int Length { get; private set; }
 
         public HeaderEntry(int offset, int length)
         {
-            this.offset = offset;
-            this.length = length;
+            Offset = offset;
+            Length = length;
         }
 
         public override string ToString()
         {
-            return "Offset: " + offset + " Length: " + length + "\r\n";
+            return "Offset: " + Offset + " Length: " + Length + "\r\n";
         }
     }
 
@@ -37,14 +37,6 @@ public class BSPHeader
         for (int i = 0; i < 15; i++)
         {
             directory.Add(new HeaderEntry(map.ReadInt32(), map.ReadInt32()));
-        }
-    }
-
-    public void PrintInfo()
-    {
-        for (int i = 0; i < 15; i++)
-        {
-            Debug.Log("Lump " + i.ToString() + " " + directory[i].ToString());
         }
     }
 }
