@@ -93,8 +93,7 @@ public class BSP29map
         for (int i = 0; i < numFaces; i++)
         {
             BSPfile.BaseStream.Seek(4, SeekOrigin.Current);
-            facesLump.faces[i] = (new BSPFace(BSPfile.ReadInt32(), BSPfile.ReadInt16(), BSPfile.ReadInt16()));
-            BSPfile.BaseStream.Seek(8, SeekOrigin.Current);
+            facesLump.faces[i] = (new BSPFace(BSPfile.ReadInt32(), BSPfile.ReadInt16(), BSPfile.ReadInt16(), BSPfile.ReadBytes(4), BSPfile.ReadInt32()));
         }
     }
 

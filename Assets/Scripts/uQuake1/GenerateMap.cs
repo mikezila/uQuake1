@@ -7,6 +7,7 @@ using System.Collections.Generic;
 public class GenerateMap : MonoBehaviour
 {
     public string mapName;
+    public bool lightMapsEnabled;
     private BSP29map map;
 
     void Start()
@@ -52,7 +53,7 @@ public class GenerateMap : MonoBehaviour
                 children.ForEach(child => DestroyImmediate(child));
             }
         }
-    } 
+    }
 #endif
 
     #endregion
@@ -112,8 +113,41 @@ public class GenerateMap : MonoBehaviour
         faceObject.AddComponent<MeshRenderer>();
 
         // We make a material and then use shared material to work around a leak in the editor
-        Material mat = new Material(Shader.Find("Diffuse"));
+        Material mat;
+
+        if (lightMapsEnabled)
+        {
+            // Lightmap wankery
+            mat = new Material(Shader.Find("Legacy Shaders/Lightmapped/Diffuse"));
+            int pointer = face.lightmap;
+            if (pointer != -1)
+            {
+                int size = 10;
+                Texture2D lightmap = new Texture2D(size, size);
+
+                Color[] colors = new Color[size * size];
+
+                for (int i = 0; i < size * size; i++)
+                {
+                    if (i >= map.lightLump.RawMaps.Length)
+                        break;
+                    var temp = map.lightLump.RawMaps[pointer + i];
+                    colors[i] = new Color32(temp, temp, temp, 255);
+                }
+                lightmap.SetPixels(colors);
+
+                mat.SetTexture("_LightMap", lightmap);
+            } 
+        }
+        else
+        {
+            mat = new Material(Shader.Find("Diffuse"));
+        }
+
+        // Set the texture we made above, after possible lightmapping circlejerk
         mat.mainTexture = map.miptexLump.textures[map.texinfoLump.texinfo[face.texinfo_id].miptex];
+
+        // Set the material
         faceObject.GetComponent<Renderer>().sharedMaterial = mat;
 
         // Turn off the renderer if the face is part of a trigger brush
@@ -128,5 +162,5 @@ public class GenerateMap : MonoBehaviour
 
         return faceObject;
     }
-#endregion
+    #endregion
 }

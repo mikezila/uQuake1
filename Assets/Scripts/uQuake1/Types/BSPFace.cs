@@ -13,13 +13,14 @@ public class BSPFace
     public char typelight;
     public char baselight;
     public char[] light = new char[2];
-    public uint lightmap;
+    public int lightmap;
 
-    public BSPFace(int ledge_index, short num_ledges, short texinfo_id)
+    public BSPFace(int ledge_index, short num_ledges, short texinfo_id, byte[] lightstyles, int lightmap)
     {
         this.ledge_index = ledge_index;
         this.num_ledges = num_ledges;
         this.texinfo_id = texinfo_id;
+        this.lightmap = lightmap;
     }
 
     public override string ToString()
