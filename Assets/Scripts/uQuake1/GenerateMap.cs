@@ -8,6 +8,7 @@ public class GenerateMap : MonoBehaviour
 {
     public string mapName;
     public bool lightMapsEnabled;
+    public bool skipSky;
     private BSP29map map;
 
     void Start()
@@ -156,6 +157,10 @@ public class GenerateMap : MonoBehaviour
         {
             faceObject.GetComponent<Renderer>().enabled = false;
         }
+
+        // Skip any textures that show a sky, if we want
+        if (skipSky && texName.Contains("sky"))
+            faceObject.GetComponent<Renderer>().enabled = false;
 
         faceObject.AddComponent<MeshCollider>();
         faceObject.isStatic = true;
