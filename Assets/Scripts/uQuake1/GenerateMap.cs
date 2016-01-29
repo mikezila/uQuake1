@@ -159,7 +159,7 @@ public class GenerateMap : MonoBehaviour
         }
 
         // Skip any textures that show a sky, if we want
-        if (skipSky && texName.Contains("sky"))
+        if (skipSky && texName.StartsWith("sky"))
             faceObject.GetComponent<Renderer>().enabled = false;
 
         faceObject.AddComponent<MeshCollider>();
