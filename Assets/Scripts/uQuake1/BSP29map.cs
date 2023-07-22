@@ -10,13 +10,13 @@ public class BSP29map
     public BSPColors palette;
 
     public BSPEntityLump entityLump;
-    public BSPFaceLump facesLump;
-    public BSPEdgeLump edgeLump;
     public BSPVertexLump vertLump;
     public BSPTexInfoLump texinfoLump;
     public BSPMipTexLump miptexLump;
-    public BSPModelLump modelLump;
+    public BSPFaceLump facesLump;
     public BSPLightMapLump lightLump;
+    public BSPEdgeLump edgeLump;
+    public BSPModelLump modelLump;
 
     public BSP29map(string filename)
     {
@@ -25,23 +25,21 @@ public class BSP29map
         palette = new BSPColors();
 
         ReadEntities();
-        ReadFaces();
-        ReadEdges();
         ReadVerts();
         ReadTexinfo();
         ReadTextures();
-        ReadModels();
+        ReadFaces();
         ReadLightMaps();
+        ReadEdges();
+        ReadModels();
 
         BSPfile.BaseStream.Dispose();
     }
 
-    private void ReadLightMaps()
+    private void ReadEntities()
     {
-        lightLump = new BSPLightMapLump();
-        BSPfile.BaseStream.Seek(header.directory[8].Offset, SeekOrigin.Begin);
-        lightLump.RawMaps = new byte[header.directory[8].Length];
-        lightLump.RawMaps = BSPfile.ReadBytes(header.directory[8].Length);
+        BSPfile.BaseStream.Seek(header.directory[0].Offset, SeekOrigin.Begin);
+        entityLump = new BSPEntityLump(BSPfile.ReadChars(header.directory[0].Length));
     }
 
     private void ReadVerts()
@@ -53,47 +51,6 @@ public class BSP29map
         for (int i = 0; i < numVerts; i++)
         {
             vertLump.verts[i] = new Vector3(BSPfile.ReadSingle(), BSPfile.ReadSingle(), BSPfile.ReadSingle()).QSwizzle();
-        }
-    }
-
-    private void ReadEntities()
-    {
-        BSPfile.BaseStream.Seek(header.directory[0].Offset, SeekOrigin.Begin);
-        entityLump = new BSPEntityLump(BSPfile.ReadChars(header.directory[0].Length));
-    }
-
-    private void ReadEdges()
-    {
-        edgeLump = new BSPEdgeLump();
-        BSPfile.BaseStream.Seek(header.directory[12].Offset, SeekOrigin.Begin);
-        int numEdges = header.directory[12].Length / 4;
-        edgeLump.edges = new BSPEdge[numEdges];
-        for (int i = 0; i < numEdges; i++)
-        {
-            edgeLump.edges[i] = new BSPEdge(BSPfile.ReadUInt16(), BSPfile.ReadUInt16());
-        }
-
-        BSPfile.BaseStream.Seek(header.directory[13].Offset, SeekOrigin.Begin);
-        int numLedges = header.directory[13].Length / 4;
-        edgeLump.ledges = new int[numLedges];
-        for (int i = 0; i < numLedges; i++)
-        {
-            edgeLump.ledges[i] = BSPfile.ReadInt32();
-        }
-    }
-
-    private void ReadFaces()
-    {
-        facesLump = new BSPFaceLump();
-        BSPfile.BaseStream.Seek(header.directory[7].Offset, SeekOrigin.Begin);
-        int numFaces = header.directory[7].Length / 20;
-        facesLump.faces = new BSPFace[numFaces];
-        // I do seeking inside the loop because I only want to rip the data I care about,
-        // and the seek skips over things I won't need, like plane information.
-        for (int i = 0; i < numFaces; i++)
-        {
-            BSPfile.BaseStream.Seek(4, SeekOrigin.Current);
-            facesLump.faces[i] = (new BSPFace(BSPfile.ReadInt32(), BSPfile.ReadInt16(), BSPfile.ReadInt16(), BSPfile.ReadBytes(4), BSPfile.ReadInt32()));
         }
     }
 
@@ -144,6 +101,49 @@ public class BSP29map
             miptexLump.textures[i].SetPixels32(colors);
             miptexLump.textures[i].filterMode = FilterMode.Point;
             miptexLump.textures[i].Apply();
+        }
+    }
+
+    private void ReadFaces()
+    {
+        facesLump = new BSPFaceLump();
+        BSPfile.BaseStream.Seek(header.directory[7].Offset, SeekOrigin.Begin);
+        int numFaces = header.directory[7].Length / 20;
+        facesLump.faces = new BSPFace[numFaces];
+        // I do seeking inside the loop because I only want to rip the data I care about,
+        // and the seek skips over things I won't need, like plane information.
+        for (int i = 0; i < numFaces; i++)
+        {
+            BSPfile.BaseStream.Seek(4, SeekOrigin.Current);
+            facesLump.faces[i] = (new BSPFace(BSPfile.ReadInt32(), BSPfile.ReadInt16(), BSPfile.ReadInt16(), BSPfile.ReadBytes(4), BSPfile.ReadInt32()));
+        }
+    }
+
+    private void ReadLightMaps()
+    {
+        lightLump = new BSPLightMapLump();
+        BSPfile.BaseStream.Seek(header.directory[8].Offset, SeekOrigin.Begin);
+        lightLump.RawMaps = new byte[header.directory[8].Length];
+        lightLump.RawMaps = BSPfile.ReadBytes(header.directory[8].Length);
+    }
+
+    private void ReadEdges()
+    {
+        edgeLump = new BSPEdgeLump();
+        BSPfile.BaseStream.Seek(header.directory[12].Offset, SeekOrigin.Begin);
+        int numEdges = header.directory[12].Length / 4;
+        edgeLump.edges = new BSPEdge[numEdges];
+        for (int i = 0; i < numEdges; i++)
+        {
+            edgeLump.edges[i] = new BSPEdge(BSPfile.ReadUInt16(), BSPfile.ReadUInt16());
+        }
+
+        BSPfile.BaseStream.Seek(header.directory[13].Offset, SeekOrigin.Begin);
+        int numLedges = header.directory[13].Length / 4;
+        edgeLump.ledges = new int[numLedges];
+        for (int i = 0; i < numLedges; i++)
+        {
+            edgeLump.ledges[i] = BSPfile.ReadInt32();
         }
     }
 
