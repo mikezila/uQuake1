@@ -42,30 +42,6 @@ public class BSP29map
         entityLump = new BSPEntityLump(BSPfile.ReadChars(header.directory[0].Length));
     }
 
-    private void ReadVerts()
-    {
-        vertLump = new BSPVertexLump();
-        BSPfile.BaseStream.Seek(header.directory[3].Offset, SeekOrigin.Begin);
-        int numVerts = header.directory[3].Length / 12;
-        vertLump.verts = new Vector3[numVerts];
-        for (int i = 0; i < numVerts; i++)
-        {
-            vertLump.verts[i] = new Vector3(BSPfile.ReadSingle(), BSPfile.ReadSingle(), BSPfile.ReadSingle()).QSwizzle();
-        }
-    }
-
-    private void ReadTexinfo()
-    {
-        texinfoLump = new BSPTexInfoLump();
-        BSPfile.BaseStream.Seek(header.directory[6].Offset, SeekOrigin.Begin);
-        int numTexinfos = header.directory[6].Length / 40;
-        texinfoLump.texinfo = new BSPTexInfo[numTexinfos];
-        for (int i = 0; i < numTexinfos; i++)
-        {
-            texinfoLump.texinfo[i] = new BSPTexInfo(new Vector3(BSPfile.ReadSingle(), BSPfile.ReadSingle(), BSPfile.ReadSingle()), BSPfile.ReadSingle(), new Vector3(BSPfile.ReadSingle(), BSPfile.ReadSingle(), BSPfile.ReadSingle()), BSPfile.ReadSingle(), BSPfile.ReadInt32(), BSPfile.ReadInt32());
-        }
-    }
-
     private void ReadTextures()
     {
         // Read the texture lump header and the offsets for the textures
@@ -101,6 +77,30 @@ public class BSP29map
             miptexLump.textures[i].SetPixels32(colors);
             miptexLump.textures[i].filterMode = FilterMode.Point;
             miptexLump.textures[i].Apply();
+        }
+    }
+
+    private void ReadVerts()
+    {
+        vertLump = new BSPVertexLump();
+        BSPfile.BaseStream.Seek(header.directory[3].Offset, SeekOrigin.Begin);
+        int numVerts = header.directory[3].Length / 12;
+        vertLump.verts = new Vector3[numVerts];
+        for (int i = 0; i < numVerts; i++)
+        {
+            vertLump.verts[i] = new Vector3(BSPfile.ReadSingle(), BSPfile.ReadSingle(), BSPfile.ReadSingle()).QSwizzle();
+        }
+    }
+
+    private void ReadTexinfo()
+    {
+        texinfoLump = new BSPTexInfoLump();
+        BSPfile.BaseStream.Seek(header.directory[6].Offset, SeekOrigin.Begin);
+        int numTexinfos = header.directory[6].Length / 40;
+        texinfoLump.texinfo = new BSPTexInfo[numTexinfos];
+        for (int i = 0; i < numTexinfos; i++)
+        {
+            texinfoLump.texinfo[i] = new BSPTexInfo(new Vector3(BSPfile.ReadSingle(), BSPfile.ReadSingle(), BSPfile.ReadSingle()), BSPfile.ReadSingle(), new Vector3(BSPfile.ReadSingle(), BSPfile.ReadSingle(), BSPfile.ReadSingle()), BSPfile.ReadSingle(), BSPfile.ReadInt32(), BSPfile.ReadInt32());
         }
     }
 
